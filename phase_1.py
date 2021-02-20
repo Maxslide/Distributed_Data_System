@@ -14,17 +14,23 @@ class QuarantinedAgain():
             print(i,j,k)
     
     def Get_Allocation(self,frag_id):
-        query = "Select * FROM Allocation Where Frag_Id = " + str(frag_id) + ";"
+        query = "Select * FROM Tables Where Table_Id = " + str(frag_id) + ";"
         self.cursor.execute(query)
         for i in self.cursor:
             # print(i)
             print("Frag_Id = " + str(i[0]) + " allocated on site : " +str(i[1]))
+    def Get_Table(self,table_name):
+        query = "Select Table_name,Frag_Type, Frag_Id,Frag_Name,Frag_Conditon FROM Tables,Frag_Table Where Tables.Table_Id = Frag_Table.Table_Id AND Table_Name = " + str(table_name) + ";"
+        self.cursor.execute(query)
+        print("(Table_name,Frag_Type, Frag_Id,Frag_Name,Frag_Conditon)")
+        for i in self.cursor:
+            print(i)
 
 
 obj = QuarantinedAgain("Maxslide", "iiit123","127.0.0.1","QuarantinedAgain")
-obj.Get_Fragments()
+# obj.Get_Fragments()
 
-print("Enter Fragment id for which the Allocation schema is required : ")
+print("Input table name : ")
 
 frag_id = input()
 
