@@ -20,4 +20,28 @@ for i in parsed_query:
 for i in token_list:
     print(i)
 
+tree_nodes = []
+for i in range(len(token_list)):
+    
+    if(token_list[i] == 'WHERE'):
+        pass 
+    if(type(token_list[i+1]) == list):
+        tree_nodes.append(
+            {
+                'Key' : token_list[i],
+                'Identifiers' : token_list[i+1],
+                'Condition' : '' 
+            }
+        )
+    
+
+
+# Create an array of dictionary
+# Format could be
+# {
+#     'Key' : 'Select'
+#     'Identifiers' : [A,B,C],
+#     'Condition' : //Yet to decide,
+# }
 # print(token_list[-1].value())
+
