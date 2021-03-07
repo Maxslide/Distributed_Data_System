@@ -32,7 +32,7 @@ class HomeDatabase():
 obj = HomeDatabase()
 # obj.execute_query('Select * From Frag_Table')
 
-query = "SELECT A,B,C FROM t1,t2,t3 WHERE t1.id == t2.id and t2.name == t3.name and (t1.col > 5 or t3.city == 'Bangalore') and t2.name == 'Manas'"
+query = "Select A,B,C from Room, Guest, Reserve Where Room.reserve_id = Reserve.reserve_id and Room.reserve_id = Guest.reserve_id and Room.city = ‘Mumbai’ Or Room.Price < 1000 and Guest.guest_id < 20"
 
 # conevrt this into query tree
 
@@ -74,8 +74,8 @@ def get_table_names(token_list):
                 })
             break
 def check_join(token) :
-    if ('==' in token and '.' in token):
-        conditions = token.strip().split('==')
+    if ('=' in token and '.' in token):
+        conditions = token.strip().split('=')
         join = []
         for i in conditions:
             check = i.strip().split('.')
@@ -177,7 +177,7 @@ for i in tree_nodes:
         for j in range(len(i['Condition'])):
             if 'OR' in i['Condition'][j]:
                 continue
-            # operator_list = ['==','>=','<=','>','<']
+            # operator_list = ['=','>=','<=','>','<']
             tok = i['Condition'][j].strip().split()
             # print(tok)
             for k in tok:
@@ -202,29 +202,44 @@ print('-------------------------------------------------------------------------
 
 pprint.pprint(tree_nodes)
 
+# Rewritten Query tree
 
-# print(hash_table)
-# for i in range(len(token_list)):
-    
-#     if(token_list[i] == 'WHERE'):
-#         pass 
-#     if(type(token_list[i+1]) == list):
-#         tree_nodes.append(
-#             {
-#                 'Key' : token_list[i],
-#                 'Identifiers' : token_list[i+1],
-#                 'Condition' : '' 
-#             }
-#         )
-    
-
-
-# Create an array of dictionary
-# Format could be
+# Localisation
 # {
-#     'Key' : 'Select'
-#     'Identifiers' : [A,B,C],
-#     'Condition' : //Yet to decide,
+#     'Key'
+#     'Condition'
+#     'Value'
 # }
-# print(token_list[-1].value())
+
+
+# [{'Condition': [], 'Key': 'Table', 'Value': 't1'},
+#  {'Condition': ["t2.name == 'Manas'"], 'Key': 'Table', 'Value': 't2'},
+#  {'Condition': [], 'Key': 'Table', 'Value': 't3'},
+#  {'Condition': [['t1', 'id'], ['t2', 'id']], 'Key': 'Join', 'Value': 't1_t2'},
+#  {'Condition': [['t2', 'name'], ['t3', 'name']],
+#   'Key': 'Join',
+#   'Value': 'To_Another_Join'},
+#  {'Condition': ["(t1.col > 5 OR t3.city == 'Bangalore')"], 'Key': 'Select'},
+#  {'Condition': ['A', 'B', 'C'], 'Key': 'Project'}]
+
+# +----------+------------+------------+-----------+----------+---------+-----------+------------------------+----------+
+# | Table_Id | Table_Name | Columns_No | Frag_Type | Frags_No | Frag_Id | Frag_Name | Frag_Condition         | Table_Id |
+# +----------+------------+------------+-----------+----------+---------+-----------+------------------------+----------+
+# |        3 | Course     |          4 | HF        |        3 |       7 | Course1   |  Course_Type = "CSE"   |        3 |
+# |        3 | Course     |          4 | HF        |        3 |       8 | Course2   |  Course_Type = "ECE"   |        3 |
+# |        3 | Course     |          4 | HF        |        3 |       9 | Course3   |  Course_Type = "HSME"  |        3 |
+# +----------+------------+------------+-----------+----------+---------+-----------+------------------------+----------+
+
+
+localised_tree_nodes = []
+
+def Assign_frag():
+    for i in tree_nodes:
+        if i['Key'] == 'Table' :
+            frag_list = obj.execute_query("select * From Tables , Frag_Table Where Tables.Table_Id = Frag_Table.Table_Id AND Table_Name = '"+ i['Value'].strip()+"';")
+            for j in frag_list:
+                
+
+                
+
 

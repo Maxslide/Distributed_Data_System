@@ -22,6 +22,12 @@ class HomeDatabase():
         # At this point we have a temporary table created 
         return
     
+    def execute_query(self,query):
+        self.cursor.execute(query)
+        output_list = []
+        for i in self.cursor:
+            output_list.append(i)
+        return output_list
         
 
 class QuarantinedAgain():
@@ -57,8 +63,8 @@ class QuarantinedAgain():
 # We can the write to the main server the temp tables and use these to further execue the queries and display the output
 # Final work flow acc to me could something like, get from obj 1, get from obj2, now perform join in out home site and then everything happens in our home site
 # as soon as all this is done, we will delete all these temp tables
-# 
+
 Home = HomeDatabase()
-# obj = QuarantinedAgain("Maxslide", "iiit123","10.3.5.213","QuarantinedAgain",Home)
-# obj2 = QuarantinedAgain("Maxslide", "iiit123","10.3.5.214","QuarantinedAgain".Home)
+obj = QuarantinedAgain("Maxslide", "iiit123","10.3.5.213","QuarantinedAgain",Home)
+obj2 = QuarantinedAgain("Maxslide", "iiit123","10.3.5.214","QuarantinedAgain",Home)
 
