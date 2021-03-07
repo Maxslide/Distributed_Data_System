@@ -21,6 +21,8 @@ class HomeDatabase():
             insert_into_table = "INSERT INTO " +table_name+" VALUES"
         # At this point we have a temporary table created 
         return
+    
+        
 
 class QuarantinedAgain():
 
@@ -58,5 +60,5 @@ class QuarantinedAgain():
 # 
 Home = HomeDatabase()
 # obj = QuarantinedAgain("Maxslide", "iiit123","10.3.5.213","QuarantinedAgain",Home)
-# obj2 = QuarantinedAgain("Maxslide", "iiit123","10.3.5.213","QuarantinedAgain".Home)
+# obj2 = QuarantinedAgain("Maxslide", "iiit123","10.3.5.214","QuarantinedAgain".Home)
 
