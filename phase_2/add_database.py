@@ -25,7 +25,7 @@ class HomeDatabase():
         # At this point we have a temporary table created 
         return
     
-    def execute_query(self,query):
+    def Execute_Query(self,query):
         self.cursor.execute(query)
         output_list = []
         for i in self.cursor:
