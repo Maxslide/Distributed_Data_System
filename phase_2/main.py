@@ -24,6 +24,7 @@ class HomeDatabase():
         return
     def execute_query(self,query):
         self.cursor.execute(query)
+        # print(self.cursor)
         output_list = []
         for i in self.cursor:
             output_list.append(i)
@@ -31,12 +32,20 @@ class HomeDatabase():
 
 obj = HomeDatabase()
 # obj.execute_query('Select * From Frag_Table')
-
-query = "Select A,B,C from Room, Guest, Reserve Where Room.reserve_id = Reserve.reserve_id and Room.reserve_id = Guest.reserve_id and Room.city = ‘Mumbai’ Or Room.Price < 1000 and Guest.guest_id < 20"
+print("Enter Query : ")
+query = input()
 
 # conevrt this into query tree
 
+
 parsed_query = sqlparse.parse(sqlparse.format(query,keyword_case='upper'))[0].tokens
+print('\n\n\nPARSED QUERY : ')
+print(sqlparse.format(query, reindent=True, keyword_case='upper'))
+print('\n\n-----------------------------------------------------------------------------------------\n\n')
+
+print("Note : In all of the query tree below, the root node will be the highest numbered node, the tree is built using bottom up approach. \n Please node the Condition key in each of the node (which is a dictionary), defines the selection statements for that node.")
+print("note that the select statements which are pushed down the tree (in our case up the indexing, since built via bottom up), will go into the list of this condition.")
+print("Refer to a detailed example of a big query mentioned in the pdf.\n\n")
 
 token_list = []
 for i in parsed_query:
@@ -48,7 +57,7 @@ for i in parsed_query:
             token_list.append(token)
         except:
             token_list.append(i)
-
+# pprint.pprint(token_list)
 # for i in token_list:
 #     print(str(i))
     # if(type(i) == list):
@@ -62,6 +71,7 @@ for i in parsed_query:
 hash_table = {}
 tree_nodes = []
 edges = []
+global_where_tokens = []
 def get_table_names(token_list):
     for i in range(len(token_list)):
         if str(token_list[i]) == 'FROM':
@@ -102,6 +112,9 @@ def get_conditions(token_list):
             _,condition = i.strip().split('WHERE')
             condition = condition.strip()
             where_tokens = condition.split('AND')
+            # global_where_tokens = where_tokens
+            for bleh in where_tokens:
+                global_where_tokens.append(bleh)
             for j in where_tokens:
                 join = check_join(j.strip())
                 if len(join) == 2:
@@ -111,7 +124,7 @@ def get_conditions(token_list):
                         k = tree_nodes[l]
                         if(k['Key'] == 'Join'):
                             for j in k['Condition']:
-                                print(j,join)
+                                # print(j,join)
                                 if(join[0][0] == j[0] or join[1][0] == j[0]):
                                     flag = 1
                                     edges.append([len(tree_nodes),l])
@@ -121,7 +134,7 @@ def get_conditions(token_list):
                                         edges.append([len(tree_nodes),hash_table[join[1][0]]])
                                     tree_nodes.append({
                                         'Key' : 'Join',
-                                        'Value' : 'To_Another_Join',
+                                        'Value' : str(join[0][0]) + '_' + str(join[1][0]),
                                         'Condition' : join
                                     })
                         if flag == 1:
@@ -145,9 +158,12 @@ def get_Project(token_list):
         i = token_list[l]
         if str(i) == 'SELECT':
             project_list = []
-            for j in token_list[l+1]:
-                project_list.append(str(j))
-            return project_list
+            if type(token_list[l+1]) != list:
+                project_list.append(token_list[l+1])
+            else:
+                for j in token_list[l+1]:
+                    project_list.append(str(j))
+                return project_list
     
 get_table_names(token_list)
 conditions_left = get_conditions(token_list)
@@ -156,6 +172,31 @@ tree_nodes.append({
     'Key' : 'Select',
     'Condition' : conditions_left
 })
+flag = 0
+# print(token_list)
+i = 0
+while i < len(token_list):
+    # print(token_list[i].get_type())
+    if flag == 1 and i + 1 < len(token_list):
+        condition = []
+        if type(token_list[i+1]) != list:
+            condition.append(str(token_list[i+1]))
+        else:
+            for j in token_list[i+1]:
+                condition.append(str(j))
+        edges.append([len(tree_nodes) -1 , len(tree_nodes)])
+        tree_nodes.append({
+            'Key' : str(token_list[i]),
+            'Condition' : condition
+        })
+        i = i+1
+    try:
+        # print(token_list[i])
+        if 'WHERE' in str(token_list[i]) :
+            flag = 1
+    except:
+        pass
+    i += 1
 edges.append([len(tree_nodes) -1 , len(tree_nodes)])
 
 tree_nodes.append({
@@ -164,8 +205,12 @@ tree_nodes.append({
 })
 
 # pprint.pprint(tree_nodes)
+print('Decomposed Query Tree\n')
 for i in range(len(tree_nodes)):
     print(str(i),"->",tree_nodes[i])
+
+print('Edge List -> ')
+
 print(edges)
 
 
@@ -186,7 +231,7 @@ for i in tree_nodes:
                         table,column = k.strip().split('.')
                         ind = hash_table[table]
                         tree_nodes[ind]['Condition'].append(i['Condition'][j])
-                        delete_list.append(j)
+                        delete_list.append(i['Condition'][j])
                     except:
                         print('Incorrect Query')
                         exit()
@@ -195,12 +240,19 @@ for i in tree_nodes:
 for i in range(len(tree_nodes)):
     if(tree_nodes[i]['Key'] == 'Select'):
         for j in delete_list:
-            del tree_nodes[i]['Condition'][j]
+            tree_nodes[i]['Condition'].remove(j)
         break
 
-print('-----------------------------------------------------------------------------------------')
+print('\n\n-----------------------------------------------------------------------------------------\n\n')
 
-pprint.pprint(tree_nodes)
+print('Decomposed Query Tree with Heuristic optimisations\n')
+
+for i in range(len(tree_nodes)):
+    print(str(i),"->",tree_nodes[i])
+
+print('Edge List -> ')
+
+print(edges)
 
 # Rewritten Query tree
 
@@ -232,13 +284,335 @@ pprint.pprint(tree_nodes)
 
 
 localised_tree_nodes = []
+localised_edges = []
+def Check_Anti(value,check_val,op,op_check):
+    if op == '=':
+        try : 
+            v = float(value)
+            if op_check == '=':
+                if check_val == value:
+                    return 0
+                else:
+                    return 1
+            else :
+                mini = -1000000000
+                maxi = 1000000000
+                if op_check == '>':
+                    mini = float(check_val) + 1
+                elif op_check == '>=':
+                    mini = float(check_val)
+                elif op_check == '<':
+                    maxi = float(check_val) - 1
+                else:
+                    maxi = float(check_val)
+                if (v >= mini and v <= maxi): 
+                    return 0
+                else :
+                    return 1
+
+        except :
+            # print("Here in the except block",check_val.strip('"').strip('"'), value.strip('"').strip('"'))
+            if check_val.strip('"').strip("'") == value.strip('"').strip("'"):
+                # print("CHECKED HERE")
+                return 0
+            else :
+                return 1
+    else:
+        mini_v = -1000000000
+        maxi_v = 1000000000
+        if op == '>':
+            mini_v = float(value) + 1
+        elif op == '>=':
+            mini_v = float(value)
+        elif op == '<':
+            maxi_v = float(value) - 1
+        else:
+            maxi_v = float(value)
+
+        mini = -1000000000
+        maxi= 1000000000
+        if op_check == '>':
+            mini = float(check_val) + 1
+        elif op_check == '>=':
+            mini = float(check_val)
+        elif op_check == '<':
+            maxi = float(check_val) - 1
+        elif op_check == '<=':
+            maxi = float(check_val)
+        else :
+            mini = float(check_val)
+            maxi = float(check_val)
+
+        if(maxi_v < mini or mini_v > maxi):
+            return 1
+        else:
+            return 0
+
+project_columns = []
+for i in tree_nodes:
+    if i['Key'] == 'Project':
+        project_columns = i['Condition']
+
+# print(project_columns)
 
 def Assign_frag():
+    hash_frag = {}
     for i in tree_nodes:
-        if i['Key'] == 'Table' :
+        if i['Key'] == 'Table':
+            # print(i['Value'])
+            hash_frag[i['Value']] = []
             frag_list = obj.execute_query("select * From Tables , Frag_Table Where Tables.Table_Id = Frag_Table.Table_Id AND Table_Name = '"+ i['Value'].strip()+"';")
             for j in frag_list:
-                
+                frag_type = j[3]
+                conditions = j[7]
+                # print(frag_type,conditions)
+                flag = 0
+                if frag_type == 'HF':
+                    conditions = conditions.split('AND')
+                    for k in conditions:
+                        l = k.split('OR')
+                        op_list = ['>=','<=','>','<','=']
+                        or_flag_anti = 0
+                        for con in l:
+                            pre_flag = 0
+                            op = ""
+                            for operator in op_list:
+                                if con.find(operator) != -1:
+                                    op = operator
+                                    break
+                            column,value = con.split(op)
+                            column = column.strip()
+                            value = value.strip()
+                            # print("HERE", i['Condition'])
+                            col_check_flag = 1
+                            for check_con in i['Condition']:
+                                check = check_con.split('.')[1].strip()
+                                # print("Check_Cond", check)
+                                op_check = ""
+                                for operator in op_list:
+                                    if check.find(operator) != -1:
+                                        op_check = operator
+                                        break
+                                check_col,check_val = check.split(op_check)
+                                check_col = check_col.strip()
+                                check_val = check_val.strip()
+                                if check_col == column:
+                                    # print("Equal_Column_Check ",column,value,check_val)
+                                    v = Check_Anti(value,check_val,op,op_check)
+                                    if v == 1:
+                                        pre_flag = 1
+                            # print("Checking pre flag -> -> ", con, pre_flag, i['Condition'])   
+                            or_flag_anti += pre_flag
+                        # print("checking or flag", k, or_flag_anti)
+                        # sum of or flagt 
+                        if or_flag_anti == len(l) :
+                            flag = 1
+                    if flag == 0 :
+                        hash_frag[i['Value']].append(len(localised_tree_nodes))
+                        localised_tree_nodes.append({
+                            'Key' : 'Table_Fragment',
+                            'Value' : j[6],
+                            'Table_Name' : i['Value'],
+                            'Condition' : i['Condition']
+                        })
+                        
+                elif frag_type == 'DHF':
+                    pass
+                else :
+                    columns_vf = conditions.strip().split()
+                    flag = 1
+                    for col in project_columns:
+                        if col in columns_vf:
+                            flag = 0
+                    if flag == 0 :
+                        hash_frag[i['Value']].append(len(localised_tree_nodes))
+                        localised_tree_nodes.append({
+                            'Key' : 'Table_Fragment',
+                            'Value' : j[6],
+                            'Table_Name' : i['Value'],
+                            'Condition' : i['Condition']
+                        })
+    
+    to_remove = []
+    for i in tree_nodes:
+        if i['Key'] == 'Table':
+            # print(i['Value'])
+            frag_list = obj.execute_query("select * From Tables , Frag_Table Where Tables.Table_Id = Frag_Table.Table_Id AND Table_Name = '"+ i['Value'].strip()+"';")
+            union_list = []
+            union_con = set()
+            for j in frag_list:
+                frag_type = j[3]
+                conditions = j[7]
+                # print(frag_type,conditions)
+                flag = 0
+                if frag_type == 'DHF':
+                    _,_,parent = conditions.strip().split()
+                    p_flag = 0
+                    # print("JOIN PARENT DHF -> ",parent)
+                    for k in range(len(localised_tree_nodes)):
+                        # print(localised_tree_nodes[k])
+                        if(localised_tree_nodes[k]['Value'] == parent):
+                            p_flag = 1
+                            hash_frag[i['Value']].append(len(localised_tree_nodes))
+                            localised_tree_nodes.append({
+                                'Key' : 'Table_Fragment',
+                                'Value' : j[6],
+                                'Table_Name' : i['Value'],
+                                'Condition' : i['Condition']
+                            })
+                            localised_edges.append([len(localised_tree_nodes),len(localised_tree_nodes) - 1])
+                            localised_edges.append([len(localised_tree_nodes),k])
+                            union_list.append(len(localised_tree_nodes))
+                            union_con.add(localised_tree_nodes[k]['Table_Name'])
+                            union_con.add(i['Value'])
+                            j_con = ""
+                            value_join = ""
+                            # print("Global where tokens",global_where_tokens)
+
+                            for tok in global_where_tokens:
+                                joins = check_join(tok)
+                                if(len(joins) == 2):
+                                    t1 = joins[0][0]
+                                    t2 = joins[1][0]
+                                    # print("HERE PRINTING -> ",i['Value'],localised_tree_nodes[k]['Table_Name'])
+                                    if((t1 == i['Value'] or t2 == i['Value']) and (t2 == localised_tree_nodes[k]['Table_Name'] or t1 == localised_tree_nodes[k]['Table_Name'])):
+                                        to_remove.append(tok)
+                                        j_con = localised_tree_nodes[k]['Value'] + "."
+                                        value_join = localised_tree_nodes[k]['Value'] + "_" + j[6]
+                                        if(localised_tree_nodes[k]['Table_Name'] == t1):
+                                            j_con += joins[0][1]
+                                        else:
+                                            j_con += joins[1][1]
+                                        j_con += " = " + j[6] + "."
+                                        if(i['Value'] == t1):
+                                            j_con += joins[0][1]
+                                        else:
+                                            j_con += joins[1][1]
+                                        break
+
+                            localised_tree_nodes.append({
+                                'Key' : 'Join',
+                                'Value' : value_join,
+                                'Condition' : j_con,
+                                'Union_Con' : []
+                            })
+                    if(p_flag == 0):
+                        hash_frag[i['Value']].append(len(localised_tree_nodes))
+                        localised_tree_nodes.append({
+                            'Key' : 'Table_Fragment',
+                            'Value' : j[6],
+                            'Table_Name' : i['Value'],
+                            'Condition' : i['Condition']
+                        })
+                        
+                else :
+                    if(len(union_list) != 0):
+                        for un in union_list:
+                            localised_edges.append([len(localised_edges),un])
+                        localised_tree_nodes.append({
+                            'Key' : 'Union',
+                            'Value' : "",
+                            'Condition' : list(union_con)
+                        })
+                        union_list = []
+                        union_con = set()
+            
+            if(len(union_list) != 0):
+                for un in union_list:
+                    localised_edges.append([len(localised_tree_nodes),un])
+                localised_tree_nodes.append({
+                    'Key' : 'Union',
+                    'Value' : "",
+                    'Condition' : list(union_con),
+                })
+                union_list = []   
+                union_con = set()
+
+
+    # print(hash_frag)
+    for i in global_where_tokens:
+        if i not in to_remove:
+            joins = check_join(i)
+            if len(joins) == 2:
+                # print('Printing the join condition', i)
+                t1 = -1
+                t2 = -1
+                join_con = []
+                for k in range(len(localised_tree_nodes)):
+                    if localised_tree_nodes[k]['Key'] == 'Union':
+                        if joins[0][0] in localised_tree_nodes[k]['Condition']:
+                            t1 = k
+                            for loc in localised_tree_nodes[k]['Condition']:
+                                join_con.append(loc)
+                        if joins[1][0] in localised_tree_nodes[k]['Condition']:
+                            t2 = k
+                            for loc in localised_tree_nodes[k]['Condition']:
+                                join_con.append(loc)
+                    if localised_tree_nodes[k]['Key'] == 'Join':
+                        if joins[0][0] in localised_tree_nodes[k]['Union_Con']:
+                            t1 = k
+                            for loc in localised_tree_nodes[k]['Union_Con']:
+                                join_con.append(loc)
+                        if joins[1][0] in localised_tree_nodes[k]['Union_Con']:
+                            t2 = k
+                            for loc in localised_tree_nodes[k]['Union_Con']:
+                                join_con.append(loc)
+                if(t1 == -1):
+                    condition_tab = []
+                    join_con.append(joins[0][0])
+                    for tab in tree_nodes:
+                        if tab['Key'] == 'Table' and tab['Value'] == joins[0][0]:
+                            condition_tab = tab['Condition']
+                            break
+                    for k in hash_frag[joins[0][0]]:
+                        localised_edges.append([len(localised_tree_nodes), k])
+                    t1 = len(localised_tree_nodes)
+                    localised_tree_nodes.append({
+                        'Key' : 'Union_Frag',
+                        'Value' : "",
+                        'Condition' : condition_tab 
+                    })
+                if(t2 == -1):
+                    condition_tab = []
+                    join_con.append(joins[1][0])
+                    for tab in tree_nodes:
+                        if tab['Key'] == 'Table' and tab['Value'] == joins[1][0]:
+                            condition_tab = tab['Condition']
+                            break
+                    for k in hash_frag[joins[1][0]]:
+                        localised_edges.append([len(localised_tree_nodes), k])
+                    t2 = len(localised_tree_nodes)
+                    localised_tree_nodes.append({
+                        'Key' : 'Union_Frag',
+                        'Value' : "",
+                        'Condition' : condition_tab 
+                    })
+                localised_edges.append([len(localised_tree_nodes),t1])
+                localised_edges.append([len(localised_tree_nodes),t2])
+                localised_tree_nodes.append({
+                    'Key' : 'Join',
+                    'Value' : joins[0][0] + '_' + joins[1][0],
+                    'Condition' : i,
+                    'Union_Con' : join_con
+                })
+    return
+
+Assign_frag()
+flag = 0
+for i in tree_nodes:
+    if i['Key'] == 'Select' or flag == 1:
+        flag = 1
+        localised_edges.append([len(localised_tree_nodes), len(localised_tree_nodes) - 1])
+        localised_tree_nodes.append(i)
+print('\n\n-----------------------------------------------------------------------------------------\n\n')
+
+print('Final Optimised Localised Query Tree\n')
+
+for i in range(len(localised_tree_nodes)):
+    print(str(i),"->",localised_tree_nodes[i])
+
+print('Edge List -> ')
+print(localised_edges)
 
                 
 
