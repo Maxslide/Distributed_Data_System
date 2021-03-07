@@ -32,7 +32,7 @@ class HomeDatabase():
 obj = HomeDatabase()
 # obj.execute_query('Select * From Frag_Table')
 
-query = "SELECT A,B,C FROM t1,t2,t3 WHERE t1.id == t2.id and t2.name == t3.name and (t1.col > 5 or t3.city == 'Bangalore')"
+query = "SELECT A,B,C FROM t1,t2,t3 WHERE t1.id == t2.id and t2.name == t3.name and (t1.col > 5 or t3.city == 'Bangalore') and t2.name == 'Manas'"
 
 # conevrt this into query tree
 
@@ -70,7 +70,7 @@ def get_table_names(token_list):
                 tree_nodes.append({
                     'Key' : 'Table',
                     'Value' : str(j),
-                    'Condition' : ''
+                    'Condition' : []
                 })
             break
 def check_join(token) :
@@ -163,8 +163,44 @@ tree_nodes.append({
     'Condition' : get_Project(token_list)
 })
 
-pprint.pprint(tree_nodes)
+# pprint.pprint(tree_nodes)
+for i in range(len(tree_nodes)):
+    print(str(i),"->",tree_nodes[i])
 print(edges)
+
+
+#  Need to move the select statements down
+
+delete_list = []
+for i in tree_nodes:
+    if i['Key'] == 'Select':
+        for j in range(len(i['Condition'])):
+            if 'OR' in i['Condition'][j]:
+                continue
+            # operator_list = ['==','>=','<=','>','<']
+            tok = i['Condition'][j].strip().split()
+            # print(tok)
+            for k in tok:
+                if('.' in k):
+                    try :
+                        table,column = k.strip().split('.')
+                        ind = hash_table[table]
+                        tree_nodes[ind]['Condition'].append(i['Condition'][j])
+                        delete_list.append(j)
+                    except:
+                        print('Incorrect Query')
+                        exit()
+        break
+
+for i in range(len(tree_nodes)):
+    if(tree_nodes[i]['Key'] == 'Select'):
+        for j in delete_list:
+            del tree_nodes[i]['Condition'][j]
+        break
+
+print('-----------------------------------------------------------------------------------------')
+
+pprint.pprint(tree_nodes)
 
 
 # print(hash_table)
