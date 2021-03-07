@@ -9,7 +9,7 @@ from os import path
 class HomeDatabase():
 
     def __init__(self):
-        self.home = mysql.connector.connect(user="Maxlslide",password = "iiit123",host = "localhost",database = "QuarantinedAgain")
+        self.home = mysql.connector.connect(user="Maxslide",password = "iiit123",host = "localhost",database = "QuarantinedAgain")
         self.cursor = self.home.cursor()
 
     def Create_temp_table(self, table_name, final_output, columns):
