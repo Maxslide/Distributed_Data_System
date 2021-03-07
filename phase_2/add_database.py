@@ -40,6 +40,7 @@ class HomeDatabase():
     	
     	for i in tab_list:
     		q = "INSERT INTO Tables VALUES (" + str(last_table_id + 1) + " , " + i[0] + ", 0, " + i[1] + ", " + str(tab_list[i]) + ");"
+			print(q)
     		last_table_id += 1
     		for j in range(len(t1)):
     			if t1[j][0] == i[0]:
