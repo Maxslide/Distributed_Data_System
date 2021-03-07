@@ -35,7 +35,7 @@ class HomeDatabase():
     def sql_queries(self,t1,t2,tab_list):
     	
     	query = "Select * From Tables"
-    	tables_list = Execute_Query(query)
+    	tables_list = self.Execute_Query(query)
     	last_table_id = int(tables_list[-1][0])
     	
     	for i in tab_list:
@@ -47,7 +47,7 @@ class HomeDatabase():
     		self.cursor.execute(q)
 
     	query = "Select * From Frag_Table"
-    	frag_list = Execute_Query(query)
+    	frag_list = self.Execute_Query(query)
     	last_frag_id = int(frag_list[-1][0])
     	for i in t1:
     		q = "INSERT INTO Frag_Table VALUES (" + str(last_frag_id + 1) + " , " + i[1] + ", " + i[3] + ", " + i[0] + ");"
@@ -94,7 +94,7 @@ class QuarantinedAgain():
     def sql_queries(self,t1,t2,tab_list):
     	
     	query = "Select * From Tables"
-    	tables_list = Execute_Query(query)
+    	tables_list = self.Execute_Query(query)
     	last_table_id = int(tables_list[-1][0])
     	
     	for i in tab_list:
@@ -106,7 +106,7 @@ class QuarantinedAgain():
     		self.cursor.execute(q)
 
     	query = "Select * From Frag_Table"
-    	frag_list = Execute_Query(query)
+    	frag_list = self.Execute_Query(query)
     	last_frag_id = int(frag_list[-1][0])
     	for i in t1:
     		q = "INSERT INTO Frag_Table VALUES (" + str(last_frag_id + 1) + " , " + i[1] + ", " + i[3] + ", " + i[0] + ");"
@@ -126,9 +126,7 @@ class QuarantinedAgain():
 # Final work flow acc to me could something like, get from obj 1, get from obj2, now perform join in out home site and then everything happens in our home site
 # as soon as all this is done, we will delete all these temp tables
 
-Home = HomeDatabase()
-obj = QuarantinedAgain("Maxslide", "iiit123","10.3.5.213","QuarantinedAgain",Home)
-obj2 = QuarantinedAgain("Maxslide", "iiit123","10.3.5.214","QuarantinedAgain",Home)
+
 
 
 
@@ -165,7 +163,7 @@ if path.exists(csv_file):
 			for i in range(len(cond)):
 				s += cond[i]
 				if cond[i] == '=' and cond[i+1] != '"' and cond[i+1] != "'":
-					if cond[i+1].is_numeric() == False:
+					if cond[i+1].isnumeric() == False:
 						s+='"'
 						f = 1
 				if f and cond[i] == " ":
@@ -173,7 +171,7 @@ if path.exists(csv_file):
 					f = 0
 			temp.append(s)
 			t1.append(temp)
-			
+			ta = tuple(ta)
 			if ta not in tab_list:
 				tab_list[ta] = 1
 			else:
@@ -190,9 +188,13 @@ if path.exists(csv_file):
 			temp.append(str(row[1].strip()))
 			t2.append(temp)
 	
-	tables = set(tab_list)
 	
-
+	Home = HomeDatabase()
+	obj = QuarantinedAgain("Maxslide", "iiit123","10.3.5.213","QuarantinedAgain",Home)
+	obj2 = QuarantinedAgain("Maxslide", "iiit123","10.3.5.214","QuarantinedAgain",Home)
+	Home.sql_queries(t1,t2,tab_list)
+	obj.sql_queries(t1,t2,tab_list)
+	obj2.sql_queries(t1,t2,tab_list)
 else:
 	print("Error: File doesn't exist")
 
