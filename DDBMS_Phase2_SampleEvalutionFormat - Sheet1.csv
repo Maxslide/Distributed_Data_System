@@ -16,7 +16,7 @@ Reserve_1,1,,
 Reserve_2,2,,
 Reserve_3,3,,
 Guest_1,1,,
-Guest_2,2,,"Select  * from Room, Guest, Reserve Where Room.reserve_id = Reserve.reserve_id and Room.reserve_id = Guest.reserve_id and Room.city = ‘Mumbai’ Or Room.Price < 1000"
+Guest_2,2,,
 Guest_3,3,,
 Room_1,1,,
 Room_2,2,,
