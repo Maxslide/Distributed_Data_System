@@ -207,15 +207,15 @@ if path.exists(csv_file):
             t2.append(temp)
 
     Home = HomeDatabase()
-    obj = QuarantinedAgain("Maxslide", "iiit123",
-                           "10.3.5.213", "QuarantinedAgain", Home)
-    obj2 = QuarantinedAgain("Maxslide", "iiit123",
-                            "10.3.5.214", "QuarantinedAgain", Home)
+    # obj = QuarantinedAgain("Maxslide", "iiit123",
+                        #    "10.3.5.213", "QuarantinedAgain", Home)
+    # obj2 = QuarantinedAgain("Maxslide", "iiit123",
+                            # "10.3.5.214", "QuarantinedAgain", Home)
     Home.sql_queries(t1, t2, tab_list)
     Home.commit()
-    obj.sql_queries(t1, t2, tab_list)
-    obj.commit()
-    obj2.sql_queries(t1, t2, tab_list)
-    obj2.commit()
+    # obj.sql_queries(t1, t2, tab_list)
+    # obj.commit()
+    # obj2.sql_queries(t1, t2, tab_list)
+    # obj2.commit()
 else:
     print("Error: File doesn't exist")
