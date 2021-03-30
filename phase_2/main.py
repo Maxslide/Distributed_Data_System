@@ -436,11 +436,21 @@ def Assign_frag():
                             flag = 1
                     if flag == 0:
                         hash_frag[i['Value']].append(len(localised_tree_nodes))
+                        newcon = []
+                        for cn in i['Condition']:
+                            coni = cn.split('.')
+                            coni[0] = j[6]
+                            ch = ""
+                            for hg in coni[:-1]:
+                                ch += hg +'.'
+                            ch += coni[-1]
+                            newcon.append(ch)
+                            
                         localised_tree_nodes.append({
                             'Key': 'Table_Fragment',
                             'Value': j[6],
                             'Table_Name': i['Value'],
-                            'Condition': i['Condition']
+                            'Condition': newcon
                         })
 
                 elif frag_type == 'DHF':
@@ -453,11 +463,20 @@ def Assign_frag():
                             flag = 0
                     if flag == 0:
                         hash_frag[i['Value']].append(len(localised_tree_nodes))
+                        newcon = []
+                        for cn in i['Condition']:
+                            coni = cn.split('.')
+                            coni[0] = j[6]
+                            ch = ""
+                            for hg in coni[:-1]:
+                                ch += hg +'.'
+                            ch += coni[-1]
+                            newcon.append(ch)
                         localised_tree_nodes.append({
                             'Key': 'Table_Fragment',
                             'Value': j[6],
                             'Table_Name': i['Value'],
-                            'Condition': i['Condition']
+                            'Condition': newcon
                         })
 
     to_remove = []
@@ -483,11 +502,20 @@ def Assign_frag():
                             p_flag = 1
                             hash_frag[i['Value']].append(
                                 len(localised_tree_nodes))
+                            newcon = []
+                            for cn in i['Condition']:
+                                coni = cn.split('.')
+                                coni[0] = j[6]
+                                ch = ""
+                                for hg in coni[:-1]:
+                                    ch += hg +'.'
+                                ch += coni[-1]
+                                newcon.append(ch)
                             localised_tree_nodes.append({
                                 'Key': 'Table_Fragment',
                                 'Value': j[6],
                                 'Table_Name': i['Value'],
-                                'Condition': i['Condition']
+                                'Condition': newcon
                             })
                             localised_edges.append(
                                 [len(localised_tree_nodes), len(localised_tree_nodes) - 1])
@@ -530,32 +558,51 @@ def Assign_frag():
                             })
                     if(p_flag == 0):
                         hash_frag[i['Value']].append(len(localised_tree_nodes))
+                        newcon = []
+                        for cn in i['Condition']:
+                            coni = cn.split('.')
+                            coni[0] = j[6] + '.'
+                            ch = ""
+                            for hg in coni[:-1]:
+                                ch += hg +'.'
+                            ch += coni[-1]
+                            newcon.append(ch)
                         localised_tree_nodes.append({
                             'Key': 'Table_Fragment',
                             'Value': j[6],
                             'Table_Name': i['Value'],
-                            'Condition': i['Condition']
+                            'Condition': newcon
                         })
 
                 else:
                     if(len(union_list) != 0):
+                        print("Union List", union_list)
+                        val = "Union_"
                         for un in union_list:
                             localised_edges.append([len(localised_edges), un])
+                            val += localised_tree_nodes[un]['Value'] + "_"
+                        val = val.strip('_')
                         localised_tree_nodes.append({
                             'Key': 'Union',
-                            'Value': "",
-                            'Condition': list(union_con)
+                            'Value': val,
+                            'Condition': list(union_con),
+                            'Union_Con' : list(union_con)
                         })
                         union_list = []
                         union_con = set()
 
             if(len(union_list) != 0):
+                print("Union List", union_list)
+                val = "Union_"
                 for un in union_list:
                     localised_edges.append([len(localised_tree_nodes), un])
+                    val += localised_tree_nodes[un]['Value'] + '_'
+                val = val.strip('_')
                 localised_tree_nodes.append({
                     'Key': 'Union',
-                    'Value': "",
+                    'Value': val,
                     'Condition': list(union_con),
+                    'Union_Con' : list(union_con)
                 })
                 union_list = []
                 union_con = set()
@@ -595,13 +642,21 @@ def Assign_frag():
                         if tab['Key'] == 'Table' and tab['Value'] == joins[0][0]:
                             condition_tab = tab['Condition']
                             break
+                    val = "Union_Frag_"
+                    t_name = ""
+                    f = 0
                     for k in hash_frag[joins[0][0]]:
+                        if f == 0:
+                            t_name = localised_tree_nodes[k]['Table_Name']
+                            val += localised_tree_nodes[k]['Table_Name']
+                            f = 1
                         localised_edges.append([len(localised_tree_nodes), k])
                     t1 = len(localised_tree_nodes)
                     localised_tree_nodes.append({
                         'Key': 'Union_Frag',
-                        'Value': "",
-                        'Condition': condition_tab
+                        'Value': val,
+                        'Condition': condition_tab,
+                        'Union_Con': [t_name]
                     })
                 if(t2 == -1):
                     condition_tab = []
@@ -610,20 +665,41 @@ def Assign_frag():
                         if tab['Key'] == 'Table' and tab['Value'] == joins[1][0]:
                             condition_tab = tab['Condition']
                             break
+                    val = "Union_Frag_"
+                    t_name = ""
+                    f = 0
                     for k in hash_frag[joins[1][0]]:
+                        if f == 0:
+                            val += localised_tree_nodes[k]['Table_Name']
+                            t_name = localised_tree_nodes[k]['Table_Name']
+                            f = 1
                         localised_edges.append([len(localised_tree_nodes), k])
                     t2 = len(localised_tree_nodes)
                     localised_tree_nodes.append({
                         'Key': 'Union_Frag',
-                        'Value': "",
-                        'Condition': condition_tab
+                        'Value': val,
+                        'Condition': condition_tab,
+                        'Union_Con': [t_name]
                     })
                 localised_edges.append([len(localised_tree_nodes), t1])
                 localised_edges.append([len(localised_tree_nodes), t2])
+                cond = i.split('=')
+                new_cond = [cond[0], cond[1]]
+                l = 0
+                for st in cond :
+                    name,c = st.split('.')
+                    if(name.strip() in localised_tree_nodes[t1]['Union_Con']):
+                        name = localised_tree_nodes[t1]['Value']
+                    elif (name.strip() in localised_tree_nodes[t2]['Union_Con']):
+                        name = localised_tree_nodes[t2]['Value']
+                    new_cond[l] = name + "." + c
+                    l += 1
+                    
+
                 localised_tree_nodes.append({
                     'Key': 'Join',
                     'Value': joins[0][0] + '_' + joins[1][0],
-                    'Condition': i,
+                    'Condition': new_cond[0] + " = " + new_cond[1],
                     'Union_Con': join_con
                 })
     return
@@ -632,8 +708,9 @@ def Assign_frag():
 Assign_frag()
 flag = 0
 if(join_flag == 1):
-    for i in range(len(tree_nodes)):
-        localised_edges.append([i,len(tree_nodes)])
+    # print(tree_nodes)
+    for i in range(len(localised_tree_nodes)):
+        localised_edges.append([i,len(localised_tree_nodes)])
     
     localised_tree_nodes.append({
         'Key': 'Union_Frag',
