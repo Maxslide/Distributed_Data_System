@@ -61,5 +61,5 @@ class Testcase:
     
 
 obj = Testcase()
-Pyro4.Daemon.serveSimple({obj : 'Graph'},host='localhost', port=9090)
+Pyro4.Daemon.serveSimple({obj : 'Graph'},host='localhost', port=9090)   
 
