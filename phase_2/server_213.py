@@ -6,7 +6,7 @@ import mysql.connector
 from mysql.connector.constants import ServerFlag
 import base64
 
-# @Pyro4.expose
+@Pyro4.expose
 class Execute():
 
     def __init__(self, link):
