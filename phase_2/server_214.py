@@ -1,7 +1,7 @@
 from os import curdir
 import Pyro4
 from mysql.connector import cursor
-import sqlparse
+# import sqlparse
 import mysql.connector
 from mysql.connector.constants import ServerFlag
 import base64
@@ -10,7 +10,7 @@ import base64
 class Execute():
 
     def __init__(self, link):
-        self.ns = Pyro4.locateNS()
+        # self.ns = Pyro4.locateNS()
         self.casetester = Pyro4.Proxy(link)
         self.home = mysql.connector.connect(
             user="Maxslide", password="iiit123", host="localhost", database="QuarantinedAgain")
