@@ -55,5 +55,6 @@ class Execute():
 
 link = input()
 obj = Execute(link)
+print(obj.casetester.check_connection())
 Pyro4.Daemon.serveSimple({obj : 'Graph_1'},host='10.3.5.213', port=9090)
 
