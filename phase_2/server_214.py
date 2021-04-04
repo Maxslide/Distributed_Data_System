@@ -56,7 +56,7 @@ class Execute():
     def check_connection(self):
         return "Connected successfully 214"
     
-link = input()
+link = "PYRO:Graph@10.3.5.215:9090"
 obj = Execute(link)
 # print("Here")
 print(obj.casetester.check_connection())

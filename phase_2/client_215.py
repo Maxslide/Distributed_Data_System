@@ -22,8 +22,8 @@ class Client():
         self.site_213.execute_query(query)
         
 
-link1 = input()
-link2 = input()
+link1 = "PYRO:Graph_1@10.3.5.214:9090"
+link2 = "PYRO:Graph_1@10.3.5.213:9090"
 obj = Client(link1,link2)
 print(obj.site_213.check_connection())
 print(obj.site_214.check_connection())
