@@ -44,11 +44,11 @@ class HomeDatabase():
     
     def check_connection(self):
         print("215 connection")
-        return "Connected successfully"
+        return "Connected successfully 215"
 
 
 obj = HomeDatabase()    
 print(obj.check_connection(),"self")
-Pyro4.Daemon.serveSimple({obj : 'Graph'},host='10.3.5.215', port=9090)
+Pyro4.Daemon.serveSimple({obj : 'Graph'},host='10.3.5.215', port=9090, ns=False)
 # Pyro4.Daemon.serveSimple({obj : 'Graph'},host='127.0.0.1', port=9090, ns=False)
 print("Loaded")

@@ -6,12 +6,16 @@ import mysql.connector
 from mysql.connector.constants import ServerFlag
 import base64
 
-@Pyro4.expose
+# @Pyro4.expose
 class Execute():
 
     def __init__(self, link):
         # self.ns = Pyro4.locateNS()
+        print("Here__init__",link)
         self.casetester = Pyro4.Proxy(link)
+        print("Connection done")
+        print(self.casetester.check_connection())
+        print("Function called")
         self.home = mysql.connector.connect(
             user="Maxslide", password="iiit123", host="localhost", database="QuarantinedAgain")
         self.cursor = self.home.cursor()
@@ -48,13 +52,13 @@ class Execute():
         self.cursor.execute(query)
         # print(self.cursor)
         return
-    
+
     def check_connection(self):
-
-        return "Connected successfully"
-
+        return "Connected successfully 213"
+    
 link = input()
 obj = Execute(link)
+# print("Here")
 print(obj.casetester.check_connection())
-Pyro4.Daemon.serveSimple({obj : 'Graph_1'},host='10.3.5.213', port=9090)
+Pyro4.Daemon.serveSimple({obj : 'Graph_1'},host='10.3.5.213', port=9090,ns=False)
 
