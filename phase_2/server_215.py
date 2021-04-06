@@ -31,7 +31,7 @@ class HomeDatabase():
         print("In insert to table 215")
         insert = "INSERT INTO "+ table_name+ " VALUES ( "
         for i in values[:-1]:
-            insert += values + ", "
+            insert += i + ", "
         insert += values[-1] + " );"
         print(insert)
         self.cursor.execute(insert)
@@ -65,6 +65,8 @@ class HomeDatabase():
             casete.insert_to_table(Table_Name, values)
             check = 0
             values = []
+
+        print("Done sending 215")
 
     def execute_query(self, query):
         self.cursor.execute(query)
