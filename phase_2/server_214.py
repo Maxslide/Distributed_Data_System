@@ -5,6 +5,7 @@ import Pyro4
 import mysql.connector
 from mysql.connector.constants import ServerFlag
 
+
 @Pyro4.expose
 class HomeDatabase():
 
@@ -26,17 +27,17 @@ class HomeDatabase():
         # At this point we have a temporary table created
         return
 
-    def insert_to_table(self,table_name,values):
+    def insert_to_table(self, table_name, values):
 
         print("In insert to table 213")
-        insert = "INSERT INTO "+ table_name+ " VALUES "
-        for i in values:
+        insert = "INSERT INTO " + table_name + " VALUES "
+        for i in values[:-1]:
             insert += str(i) + ", "
-        insert += " ;"
+        insert += str(values[-1]) + " ;"
         print(insert)
         self.cursor.execute(insert)
-    
-    def Send_Create_Table(self, Table_Name,link):
+
+    def Send_Create_Table(self, Table_Name, link):
         casete = Pyro4.Proxy(link)
         self.cursor.execute("Describe " + Table_Name + ";")
         columns = []
@@ -74,13 +75,14 @@ class HomeDatabase():
         # for i in self.cursor:
         #     output_list.append(i)
         # return output_list
-    
+
     def check_connection(self):
         print("214 connection")
         return "Connected successfully 214"
 
 
-obj = HomeDatabase()    
-print(obj.check_connection(),"self")
-Pyro4.Daemon.serveSimple({obj : 'Graph'},host='10.3.5.214', port=9090, ns=False)
+obj = HomeDatabase()
+print(obj.check_connection(), "self")
+Pyro4.Daemon.serveSimple(
+    {obj: 'Graph'}, host='10.3.5.214', port=9090, ns=False)
 # Pyro4.Daemon.serveSimple({obj : 'Graph'},host='127.0.0.1', port=9090, ns=False)
