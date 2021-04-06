@@ -1,7 +1,7 @@
 # python3 -m Pyro4.naming
 # Main site
 import Pyro4
-import sqlparse
+# import sqlparse
 import mysql.connector
 from mysql.connector.constants import ServerFlag
 
@@ -33,6 +33,36 @@ class HomeDatabase():
         insert += values[-1] + " );"
         print(insert)
         self.cursor.execute(insert)
+    
+    def Send_Create_Table(self, Table_Name,link):
+        casete = Pyro4.Proxy(link)
+        self.cursor.execute("Describe " + Table_Name + ";")
+        columns = []
+        for i in self.cursor:
+            col = ""
+            for j in range(len(i)):
+                if(j == 1):
+                    # print(str(i[j]))
+                    col += " " + str(i[j]).strip('b').strip("'")
+                    break
+                col += i[j]
+            columns.append(col)
+        print(columns)
+        casete.Create_temp_table(Table_Name, columns)
+        self.cursor.execute("Select * From "+Table_Name+" ;")
+        check = 0
+        values = []
+        for i in self.cursor:
+            values.append(i)
+            check += 1
+            if check == 100:
+                casete.insert_to_table(Table_Name, values)
+                check = 0
+                values = []
+        if len(values) > 0:
+            casete.insert_to_table(Table_Name, values)
+            check = 0
+            values = []
 
     def execute_query(self, query):
         self.cursor.execute(query)
@@ -51,4 +81,3 @@ obj = HomeDatabase()
 print(obj.check_connection(),"self")
 Pyro4.Daemon.serveSimple({obj : 'Graph'},host='10.3.5.215', port=9090, ns=False)
 # Pyro4.Daemon.serveSimple({obj : 'Graph'},host='127.0.0.1', port=9090, ns=False)
-print("Loaded")
