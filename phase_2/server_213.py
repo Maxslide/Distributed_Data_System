@@ -29,10 +29,10 @@ class HomeDatabase():
     def insert_to_table(self,table_name,values):
 
         print("In insert to table 213")
-        insert = "INSERT INTO "+ table_name+ " VALUES ( "
-        for i in values[:-1]:
-            insert += i + ", "
-        insert += values[-1] + " );"
+        insert = "INSERT INTO "+ table_name+ " VALUES "
+        for i in values:
+            insert += str(i) + ", "
+        insert += " ;"
         print(insert)
         self.cursor.execute(insert)
     
