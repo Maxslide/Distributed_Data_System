@@ -38,5 +38,12 @@ print(obj.site_213.check_connection())
 print(obj.site_214.check_connection())
 print(obj.site_215.check_connection())
 
-obj.site_215.Send_Create_Table("TestingTable",obj.site_213_link)
-obj.site_215.Send_Create_Table("TestingTable",obj.site_214_link)
+obj.site_214.Send_Create_Table("TestingTable",obj.site_213_link)
+obj.site_214.Send_Create_Table("TestingTable",obj.site_215_link)
+
+# CREATE TABLE TestingTable(A int, B int);
+# Insert Into TestingTable Values (1,2);
+# Insert Into TestingTable Values (2,3);
+# Insert Into TestingTable Values (3,4);
+# Insert Into TestingTable Values (4,5);
+# Insert Into TestingTable Values (5,6);

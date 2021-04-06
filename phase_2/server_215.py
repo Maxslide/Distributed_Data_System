@@ -16,6 +16,7 @@ class HomeDatabase():
     def Create_temp_table(self, table_name, columns):
         # Need to decide how to name the joins etc
         # complete the syntax for create table
+        print("In create temp 215")
         creat_table = "CREATE TABLE "+table_name+" ( "
         for i in columns[:-1]:
             creat_table += i + " ,"
@@ -27,6 +28,7 @@ class HomeDatabase():
 
     def insert_to_table(self,table_name,values):
 
+        print("In insert to table 215")
         insert = "INSERT INTO "+ table_name+ " VALUES ( "
         for i in values[:-1]:
             insert += values + ", "
