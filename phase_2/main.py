@@ -1310,10 +1310,10 @@ def final_query():
         temp = dfs(i-1)
         query1 = temp['Value']
         site_i = get_site_temp(query1)
-        if(site_i == 1):
+        if(site_i[0] == 1):
             pass
         else:
-            site_obj[site_i].Send_Create_Table(query1,site_link[1])
+            site_obj[site_i[0]].Send_Create_Table(query1,site_link[1])
         cond = nodes[i]['Condition']
         if len(cond) > 0:
             query1 += ' where '
