@@ -1439,8 +1439,9 @@ def final_query():
 
 
 temp = final_query()
-
+remove_temp()
 # print(queries
 
 # Select Course_Code,Phone_No,Last_Name From Teaches,Faculty From where Last_Name = "Agarwal" and Teaches.Faculty_Id = Faculty.Faculty_Id;
+# Select AVG(Grade) From Opts,Course where Course.Course_Code = Opts.Course_Code and Course.Course_Type = "HSME"
 # Select reserve_id,name,city,price,sum(price) from Room, Guest, Reserve Where Room.reserve_id = Reserve.reserve_id and Room.reserve_id = Guest.reserve_id and Room.city = 'Mumbai' and Guest.guest_id < 20 and Room.reserve_id > 2 Group by name,price Having price > 3
