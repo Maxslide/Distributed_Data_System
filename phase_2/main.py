@@ -1,3 +1,4 @@
+from platform import node
 import pprint
 from os import curdir
 import Pyro4
@@ -1044,6 +1045,7 @@ def dfs(n):
 
         temp_tables.append(nodes[n]['Value'])
         print("Here in dfs query",query)
+        obj.insert_to_table('Execution_Table',[(nodes[n]['Value'],1,query_site)])
         site_obj[query_site].execute_query(query)
         queries.append([query,query_site])
         return nodes[n]
@@ -1106,6 +1108,7 @@ def dfs(n):
         # End sending table
         print("Here in dfs query",query)
         temp_tables.append(nodes[n]['Value'])
+        obj.insert_to_table('Execution_Table',[(nodes[n]['Value'],1,query_site)])
         site_obj[query_site].execute_query(query)
         queries.append([query,query_site])
         return nodes[n]
@@ -1144,7 +1147,7 @@ def dfs(n):
         hash_site = {1 : 0, 2:0 , 3:0}
         for i in child:
             dict_child[i['Value']] = get_site_temp(i['Value'])
-
+        print(dict_child)
         cost_site = {1: 0, 2:0,3:0}
         for keys in hash_site:
             for chil in dict_child:
