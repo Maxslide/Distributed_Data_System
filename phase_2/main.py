@@ -1416,7 +1416,7 @@ def final_query():
         if(site_i[0] == 1):
             pass
         else:
-            obj.insert_to_table('Execution_Table',[(query1),1,1])
+            obj.insert_to_table('Execution_Table',[(query1,1,1)])
             site_obj[site_i[0]].Send_Create_Table(query1,site_link[1])
         cond = nodes[i]['Condition']
         if len(cond) > 0:
