@@ -1126,12 +1126,28 @@ def dfs(n):
         right = (cond[1].strip()).split('.')
         query = ''
         condi_flag = 0
+        where = ' Where '
         exec_ins = [] 
         if left[1] == right[1]:
             query = 'Create Table ' + nodes[n]['Value'] + ' AS (Select * From '
             query += child[0]['Value'] + ' Inner Join ' + child[1]['Value'] + ' using('
             query += right[1]
             query += ')'
+            
+            if(len(child[0]['Condition'])!=0 or len(child[0]['Condition'])):
+                query += where
+            manas = []
+            if(child[0]['Key'] == 'Table_Fragment'):
+                for i in child[0]['Condition']:
+                    manas.append(i)
+            if(child[1]['Key'] == 'Table_Fragment'):
+                for i in child[1]['Condition']:
+                    manas.append(i)
+            if(len(manas) >= 1):
+                for i in manas[:-1]:
+                    query += i + ' AND '
+                query += manas[-1]
+
             condi_flag = 1
         else:
             query = 'Create Table ' + nodes[n]['Value'] + ' AS ('
@@ -1140,6 +1156,19 @@ def dfs(n):
             query += select + child[0]['Value'] + ',' + child[1]['Value']
             query += where
             query += nodes[n]['Condition']
+            if(len(child[0]['Condition'])!=0 or len(child[0]['Condition'])):
+                query += ' AND '
+            manas = []
+            if(child[0]['Key'] == 'Table_Fragment'):
+                for i in child[0]['Condition']:
+                    manas.append(i)
+            if(child[1]['Key'] == 'Table_Fragment'):
+                for i in child[1]['Condition']:
+                    manas.append(i)
+            if(len(manas) >= 1):
+                for i in manas[:-1]:
+                    query += i + ' AND '
+                query += manas[-1]
         query += ');'
 
         # sending table
@@ -1200,7 +1229,8 @@ def dfs(n):
                             query = 'Create Table ' + key2 +'_SJOut' + ' AS (Select * From '
                             query += key2 + ' Inner Join ' + key1 +'_SJ'+  ' using('
                             query += right[1]
-                            query += '));'
+                            query += ')'
+                            query += ');'
                             print("Query : ",query)
                             site_obj[siit2].execute_query(query)
                             print('exec : ' ,)
@@ -1243,10 +1273,62 @@ def dfs(n):
                 query = 'Create Table ' + nodes[n]['Value'] + ' AS (Select * From '
                 query += key2 +"_SJOut"+ ' Inner Join ' + key1 +'_SJOut'+  ' using('
                 query += right[1]
-                query += '));'
+                query += ')'
+                if(len(child[0]['Condition'])!=0 or len(child[0]['Condition'])):
+                    query += where
+                manas = []
+                if(child[0]['Key'] == 'Table_Fragment'):
+                    for i in child[0]['Condition']:
+                        manas.append(i)
+                if(child[1]['Key'] == 'Table_Fragment'):
+                    for i in child[1]['Condition']:
+                        manas.append(i)
+                if(len(manas) >= 1):
+                    for i in manas[:-1]:
+                        temp = i.split('.')
+                        temp[0]+= '_SJOut'
+                        qui = ''
+                        for i in temp[:-1]:
+                            qui += temp + '.'
+                        qui += temp[-1]
+                        query += qui + ' AND '
+                    temp = manas[-1].split('.')
+                    temp[0]+= '_SJOut'
+                    qui = ''
+                    for i in temp[:-1]:
+                        qui += temp + '.'
+                    qui += temp[-1]
+                    query += qui
             else:
                 query = 'Create Table ' + nodes[n]['Value'] + ' AS (Select * From '
-                query += key2 + "_SJOut"+ " , " + key1 + '_SJOut' + " Where "+key1 + "_SJOut." + cond1 + " = " +key2 +"_SJOut." +cond2 + ");"
+                query += key2 + "_SJOut"+ " , " + key1 + '_SJOut' + " Where "+key1 + "_SJOut." + cond1 + " = " +key2 +"_SJOut." +cond2
+                if(len(child[0]['Condition'])!=0 or len(child[0]['Condition'])):
+                    query += ' AND '
+                manas = []
+                if(child[0]['Key'] == 'Table_Fragment'):
+                    for i in child[0]['Condition']:
+                        manas.append(i)
+                if(child[1]['Key'] == 'Table_Fragment'):
+                    for i in child[1]['Condition']:
+                        manas.append(i)
+                if(len(manas) >= 1):
+                    for i in manas[:-1]:
+                        temp = i.split('.')
+                        temp[0]+= '_SJOut'
+                        qui = ''
+                        for i in temp[:-1]:
+                            qui += temp + '.'
+                        qui += temp[-1]
+                        query += qui + ' AND '
+                    temp = manas[-1].split('.')
+                    temp[0]+= '_SJOut'
+                    qui = ''
+                    for i in temp[:-1]:
+                        qui += temp + '.'
+                    qui += temp[-1]
+                    query += qui
+
+            query +=');'
             query_site = min_key
             queries.append([query,query_site])
             print("Here in dfs query",query)
