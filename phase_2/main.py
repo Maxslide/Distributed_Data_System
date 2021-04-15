@@ -976,7 +976,7 @@ def dfs(n):
             min_key = 1
             min_sum = cost_site[1]
             for keys in cost_site:
-                if(cost_site[keys] > min_sum):
+                if(cost_site[keys] < min_sum):
                     min_sum = cost_site[keys]
                     min_key = keys
             
@@ -1026,7 +1026,7 @@ def dfs(n):
             min_key = 1
             min_sum = cost_site[1]
             for keys in cost_site:
-                if(cost_site[keys] > min_sum):
+                if(cost_site[keys] < min_sum):
                     min_sum = cost_site[keys]
                     min_key = keys
             
@@ -1087,7 +1087,7 @@ def dfs(n):
         min_key = 1
         min_sum = cost_site[1]
         for keys in cost_site:
-            if(cost_site[keys] > min_sum):
+            if(cost_site[keys] < min_sum):
                 min_sum = cost_site[keys]
                 min_key = keys
         print("UNION", dict_child)
