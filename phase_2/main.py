@@ -1090,7 +1090,7 @@ def dfs(n):
             if(cost_site[keys] > min_sum):
                 min_sum = cost_site[keys]
                 min_key = keys
-        
+        print("UNION", dict_child)
         for chil in dict_child:
             if min_key not in dict_child[chil]:
                 si = dict_child[chil][0]
