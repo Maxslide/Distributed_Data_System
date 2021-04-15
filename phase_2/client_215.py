@@ -19,6 +19,9 @@ class Client():
         self.site_213 = Pyro4.Proxy(link1)
         self.site_214 = Pyro4.Proxy(link2)
         self.site_215 = Pyro4.Proxy(link3)
+        self.home = mysql.connector.connect(
+            user="Maxslide", password="iiit123", host="localhost", database="QuarantinedAgain")
+        self.cursor = self.home.cursor()
 
     def execute_site_214(self,query):
         self.site_214.execute_query(query)
@@ -28,6 +31,21 @@ class Client():
     
     def execute_site_213(self,query):
         self.site_213.execute_query(query)
+
+    def Two_Phase_Commit(self,query):
+        # We need to send query to each site to update based on allocation schema
+        Table_Name = "Table_Name"
+        q = "select Table_Name, Frag_Name, Site_Id from Tables as T, Frag_Table as F, Allocation as A Where T.Table_Id = F.Table_Id and F.Frag_Id = A.Frag_Id  and Table_Name = " +Table_Name+";"
+        self.cursor.execute(q)
+        print('begin_commit')
+        for i in self.cursor:
+            #table_name = i[0]
+            #Frag_Name = i[1]
+            #Site_Id = i[2]
+
+            pass
+        return
+
         
 
 link1 = "PYRO:Graph@10.3.5.213:9090"

@@ -77,6 +77,21 @@ class HomeDatabase():
         #     output_list.append(i)
         # return output_list
 
+    def two_phase_message(self,message):
+        ready_state = 0 
+        if(message == "prepare"):
+            if ready_state == 0:
+                print("abort")
+                return "vote-abort"
+            else :
+                print("ready")
+                return "vote-commit"
+        if(message == "COMMIT"):
+            pass
+        if(message == "ABORT"):
+            pass
+        
+
     def check_connection(self):
         print("213 connection")
         return "Connected successfully 213"
