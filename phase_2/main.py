@@ -995,6 +995,7 @@ def dfs(n):
             query = 'Create Table ' + nodes[n]['Value'] + ' AS (Select * From '
             inner_join = ' Inner Join '
             on = ' ON '
+            using = ' USING '
             equal = ' = '
             key_col = Key_col(child[0]['Value'])
             if(len(child) >= 2):
@@ -1002,12 +1003,12 @@ def dfs(n):
                 for i in range(1,len(child)):
                     query += '('
                 
-                query += child[0]['Value'] + inner_join + child[1]['Value'] + on 
-                query += child[0]['Value'] + '.' + key_col + equal + child[1]['Value'] + '.' +key_col
+                query += child[0]['Value'] + inner_join + child[1]['Value'] +  using
+                query += '(' +key_col +')'
 
                 for i in range(2,len(child)):
-                    query += ')' + inner_join + child[i]['Value'] + on
-                    query += child[0]['Value'] + '.' + key_col + equal + child[i]['Value'] + '.' +key_col
+                    query += ')' + inner_join + child[i]['Value'] + using
+                    query += '('+key_col+')'
                 query += ')'
             else:
                 query += child[0]['Value']
