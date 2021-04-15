@@ -51,6 +51,8 @@ class HomeDatabase():
     def Create_Exectution_Table(self):
         query = "DROP TABLE IF EXISTS Execution_Table;"
         self.cursor.execute(query)
+        query = "DROP TABLE IF EXISTS Join_Selectivity"
+        self.cursor.execute(query)
         query = "CREATE TABLE Execution_Table ( Table_name varchar(200), Temp int, Site_id int );"
         self.cursor.execute(query)
         query = "CREATE TABLE Join_Selectivity ( Table_name varchar(200), Column_Name varchar(200),  Selectivity_Factor float , Cardinality int );"
@@ -893,7 +895,7 @@ def get_site(table):
     return sites
 
 def get_site_temp(table):
-    query = "Select Site_id from Execution_Table where Table = '" + table + "';"
+    query = "Select Site_id from Execution_Table where Table_name = '" + table + "';"
     out = obj.execute_query(query)
     sites = []
     for i in range(len(out)):
