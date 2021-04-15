@@ -971,8 +971,8 @@ def dfs(n):
             cost_site = {1: 0, 2:0,3:0}
             for keys in hash_site:
                 for chil in dict_child:
-                    if keys not in dict_child[chil['Value']]:
-                        cost_site[keys] += get_size(dict_child[chil['Value']][0],chil['Value'])
+                    if keys not in dict_child[chil]:
+                        cost_site[keys] += get_size(dict_child[chil][0],chil)
             min_key = 1
             min_sum = cost_site[1]
             for keys in cost_site:
@@ -981,11 +981,11 @@ def dfs(n):
                     min_key = keys
             
             for chil in dict_child:
-                if min_key not in dict_child[chil['Value']]:
-                    si = dict_child[chil['Value']][0]
-                    site_obj[si].Send_Create_Table(chil['Value'],site_link[min_key])
+                if min_key not in dict_child[chil]:
+                    si = dict_child[chil][0]
+                    site_obj[si].Send_Create_Table(chil,site_link[min_key])
                     ins = []
-                    ins.append(chil['Value'],1,min_key)
+                    ins.append(chil,1,min_key)
                     obj.insert_to_table('Execute_Table', ins)
             # Query to execute on min_key
             query_site = min_key
@@ -1021,8 +1021,8 @@ def dfs(n):
             cost_site = {1: 0, 2:0,3:0}
             for keys in hash_site:
                 for chil in dict_child:
-                    if keys not in dict_child[chil['Value']]:
-                        cost_site[keys] += get_size(dict_child[chil['Value']][0],chil['Value'])
+                    if keys not in dict_child[chil]:
+                        cost_site[keys] += get_size(dict_child[chil][0],chil)
             min_key = 1
             min_sum = cost_site[1]
             for keys in cost_site:
@@ -1031,11 +1031,11 @@ def dfs(n):
                     min_key = keys
             
             for chil in dict_child:
-                if min_key not in dict_child[chil['Value']]:
-                    si = dict_child[chil['Value']][0]
-                    site_obj[si].Send_Create_Table(chil['Value'],site_link[min_key])
+                if min_key not in dict_child[chil]:
+                    si = dict_child[chil][0]
+                    site_obj[si].Send_Create_Table(chil,site_link[min_key])
                     ins = []
-                    ins.append(chil['Value'],1,min_key)
+                    ins.append(chil,1,min_key)
                     obj.insert_to_table('Execute_Table', ins)
             # Query to execute on min_key
             query_site = min_key
@@ -1082,8 +1082,8 @@ def dfs(n):
         cost_site = {1: 0, 2:0,3:0}
         for keys in hash_site:
             for chil in dict_child:
-                if keys not in dict_child[chil['Value']]:
-                    cost_site[keys] += get_size(dict_child[chil['Value']][0],chil['Value'])
+                if keys not in dict_child[chil]:
+                    cost_site[keys] += get_size(dict_child[chil][0],chil)
         min_key = 1
         min_sum = cost_site[1]
         for keys in cost_site:
@@ -1092,11 +1092,11 @@ def dfs(n):
                 min_key = keys
         
         for chil in dict_child:
-            if min_key not in dict_child[chil['Value']]:
-                si = dict_child[chil['Value']][0]
-                site_obj[si].Send_Create_Table(chil['Value'],site_link[min_key])
+            if min_key not in dict_child[chil]:
+                si = dict_child[chil][0]
+                site_obj[si].Send_Create_Table(chil,site_link[min_key])
                 ins = []
-                ins.append(chil['Value'],1,min_key)
+                ins.append(chil,1,min_key)
                 obj.insert_to_table('Execute_Table', ins)
         # Query to execute on min_key
         query_site = min_key
@@ -1145,8 +1145,8 @@ def dfs(n):
         cost_site = {1: 0, 2:0,3:0}
         for keys in hash_site:
             for chil in dict_child:
-                if keys not in dict_child[chil['Value']]:
-                    cost_site[keys] += get_size(dict_child[chil['Value']][0],chil['Value'])
+                if keys not in dict_child[chil]:
+                    cost_site[keys] += get_size(dict_child[chil][0],chil)
         min_key = 0
         min_sum = cost_site[1]
         if(cost_site[1] == 2):
@@ -1161,26 +1161,26 @@ def dfs(n):
             flag = 0
             ins = []
             for chil in dict_child:
-                si = dict_child[chil['Value']][0]
+                si = dict_child[chil][0]
                 if flag == 0:
-                    que = "Select Count(DISTINCT "+left[1]+" ) From " +chil['Value']+";" 
-                    query_semi = "Create TABLE "+chil['Value'] +"_SJ"+" AS (Select Distinct "+left[i]+" FROM "+chil['Value']+" );"
+                    que = "Select Count(DISTINCT "+left[1]+" ) From " +chil+";" 
+                    query_semi = "Create TABLE "+chil +"_SJ"+" AS (Select Distinct "+left[i]+" FROM "+chil+" );"
                     site_obj[si].execute_query(query_semi)
-                    exec_ins.append((chil['Value'] +"_SJ",1,si))
+                    exec_ins.append((chil +"_SJ",1,si))
                     flag = 1
                     out = site_obj[si].execute_query_output(que)
-                    sizz =get_size(si,chil['Value'])                
-                    ins.append((chil['Value'],left[1],float(out[0][0]),sizz))
-                    semi_join_dict_child[chil['Value']] = [float(out[0][0]), sizz,si,left[1]]
+                    sizz =get_size(si,chil)                
+                    ins.append((chil,left[1],float(out[0][0]),sizz))
+                    semi_join_dict_child[chil] = [float(out[0][0]), sizz,si,left[1]]
                 else :
-                    que = "Select Count(DISTINCT "+right[1]+" ) From " +chil['Value']+";" 
-                    query_semi = "Create TABLE "+chil['Value'] +"_SJ"+" AS (Select Distinct "+right[i]+" FROM "+chil['Value']+" );"
+                    que = "Select Count(DISTINCT "+right[1]+" ) From " +chil+";" 
+                    query_semi = "Create TABLE "+chil +"_SJ"+" AS (Select Distinct "+right[i]+" FROM "+chil+" );"
                     site_obj[si].execute_query(query_semi)
-                    exec_ins.append((chil['Value'] +"_SJ",1,si))
+                    exec_ins.append((chil +"_SJ",1,si))
                     out = site_obj[si].execute_query_output(que)  
-                    sizz = get_size(si,chil['Value'])   
-                    semi_join_dict_child[chil['Value']] = [float(out[0][0]), sizz,si,right[1]]
-                    ins.append((chil['Value'],left[1],float(out[0][0]),sizz))
+                    sizz = get_size(si,chil)   
+                    semi_join_dict_child[chil] = [float(out[0][0]), sizz,si,right[1]]
+                    ins.append((chil,left[1],float(out[0][0]),sizz))
             obj.insert_to_table('Join_Selectivity',ins) 
             for key1 in semi_join_dict_child:
                 for key2 in semi_join_dict_child:
