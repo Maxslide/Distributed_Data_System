@@ -1260,13 +1260,14 @@ def dfs(n):
 
             min_key = 0
             min_sum = 0
+            # print(semi_join_dict_child)
             for key in semi_join_dict_child:
                 min_key = semi_join_dict_child[key][2]
                 min_sum = get_size(min_key,key + "_SJOut")
             
             for key in semi_join_dict_child:
                 k = semi_join_dict_child[key][2]
-                s = get_size(min_key,key + "_SJOut")
+                s = get_size(k,key + "_SJOut")
                 if(s > min_sum):
                     min_sum = s
                     min_key = k
