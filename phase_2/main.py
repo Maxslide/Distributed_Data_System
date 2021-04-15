@@ -1134,7 +1134,7 @@ def dfs(n):
             query += right[1]
             query += ')'
             
-            if(len(child[0]['Condition'])!=0 or len(child[1]['Condition'])!= 0):
+            if((len(child[0]['Condition'])!=0 and child[0]['Key'] == 'Table_Fragment') or (len(child[1]['Condition'])!= 0 and child[1]['Key'] == 'Table_Fragment')):
                 query += where
             manas = []
             if(child[0]['Key'] == 'Table_Fragment'):
@@ -1156,7 +1156,7 @@ def dfs(n):
             query += select + child[0]['Value'] + ',' + child[1]['Value']
             query += where
             query += nodes[n]['Condition']
-            if(len(child[0]['Condition'])!=0 or len(child[1]['Condition'])!= 0):
+            if((len(child[0]['Condition'])!=0 and child[0]['Key'] == 'Table_Fragment') or (len(child[1]['Condition'])!= 0 and child[1]['Key'] == 'Table_Fragment')):
                 query += ' AND '
             manas = []
             if(child[0]['Key'] == 'Table_Fragment'):
@@ -1274,7 +1274,7 @@ def dfs(n):
                 query += key2 +"_SJOut"+ ' Inner Join ' + key1 +'_SJOut'+  ' using('
                 query += right[1]
                 query += ')'
-                if(len(child[0]['Condition'])!=0 or len(child[1]['Condition'])!= 0):
+                if((len(child[0]['Condition'])!=0 and child[0]['Key'] == 'Table_Fragment') or (len(child[1]['Condition'])!= 0 and child[1]['Key'] == 'Table_Fragment')):
                     query += where
                 manas = []
                 if(child[0]['Key'] == 'Table_Fragment'):
@@ -1302,7 +1302,7 @@ def dfs(n):
             else:
                 query = 'Create Table ' + nodes[n]['Value'] + ' AS (Select * From '
                 query += key2 + "_SJOut"+ " , " + key1 + '_SJOut' + " Where "+key1 + "_SJOut." + cond1 + " = " +key2 +"_SJOut." +cond2
-                if(len(child[0]['Condition'])!=0 or len(child[1]['Condition'])!= 0):
+                if((len(child[0]['Condition'])!=0 and child[0]['Key'] == 'Table_Fragment') or (len(child[1]['Condition'])!= 0 and child[1]['Key'] == 'Table_Fragment')):
                     query += ' AND '
                 manas = []
                 if(child[0]['Key'] == 'Table_Fragment'):
