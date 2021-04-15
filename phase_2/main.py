@@ -1195,11 +1195,13 @@ def dfs(n):
                             query += key2 + ' Inner Join ' + key1 +'_SJ'+  ' using('
                             query += right[1]
                             query += ')'
+                            print("Query : ",query)
                             site_obj[siit2].execute_query(query)
                             exec_ins.append((key2 + "_SJOut",1,siit2))
                         else :
                             query = 'Create Table ' + key2 +'_SJOut' + ' AS (Select * From '
                             query += key2 + " , " + key1 + '_SJ' + " Where "+key1 + "_SJ." + cond1 + " = " +key2 +"." +cond2 + ";"
+                            print("Query : ",query)
                             site_obj[siit2].execute_query(query)
                             exec_ins.append((key2 + "_SJOut",1,siit2))
 
