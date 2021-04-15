@@ -1149,11 +1149,11 @@ def dfs(n):
                     cost_site[keys] += get_size(dict_child[chil][0],chil)
         min_key = 0
         min_sum = cost_site[1]
-        if(cost_site[1] == 2):
+        if(cost_site[1] == 0):
             min_key = 1
-        elif(cost_site[2] == 2):
+        elif(cost_site[2] == 0):
             min_key = 2
-        elif(cost_site[3] == 2):
+        elif(cost_site[3] == 0):
             min_key = 3
 
         if(min_key == 0):
