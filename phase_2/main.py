@@ -849,7 +849,19 @@ temp_tables = []
 queries = []
 num = len(localised_tree_nodes) - 1
 nodes = localised_tree_nodes
+def remove_temp():
+    query = "Select * From Execution_Table;"
+    out = obj.execute_query(query)
+    for i in out:
+        if(i[1] == 1):
+            print("DROP TABLE IF EXISTS "+i[0].strip()+";")
+            a = site_obj[i[2]].execute_query("DROP TABLE IF EXISTS "+i[0].strip()+";")
+        else :
+            continue
+    print("FINISHED")
+    return
 
+remove_temp()
     
 obj.Create_Exectution_Table()
 def Key_col(table):
@@ -913,17 +925,7 @@ def get_size(site_id,table):
     out = site_obj[site_id].execute_query_output(query)
     return int(out[0][0])
 
-def remove_temp():
-    query = "Select * From Execution_Table;"
-    out = obj.execute_query(query)
-    for i in out:
-        if(i[1] == 1):
-            print("DROP TABLE IF EXISTS "+i[0].strip()+";")
-            a = site_obj[i[2]].execute_query("DROP TABLE IF EXISTS "+i[0].strip()+";")
-        else :
-            continue
-    print("FINISHED")
-    return
+
 def dfs(n):
     opt = nodes[n]['Key']
     if opt == 'Table_Fragment':
@@ -1414,6 +1416,7 @@ def final_query():
         if(site_i[0] == 1):
             pass
         else:
+            obj.insert_to_table('Execution_Table',[(query1),1,1])
             site_obj[site_i[0]].Send_Create_Table(query1,site_link[1])
         cond = nodes[i]['Condition']
         if len(cond) > 0:
@@ -1424,6 +1427,7 @@ def final_query():
             query1 += cond[len(cond)-1]
     
     query += query1 + query2 + query3 + ';'
+    print(query)
     out = obj.execute_query_final(query)
     print("EXECUTED QUERY")
     for i in out:
@@ -1432,10 +1436,11 @@ def final_query():
     queries.append(query)
     return queries
 
-remove_temp()
+
+
 temp = final_query()
 
 # print(queries
 
-
+# Select Course_Code,Phone_No,Last_Name From Teaches,Faculty From where Last_Name = "Agarwal" and Teaches.Faculty_Id = Faculty.Faculty_Id;
 # Select reserve_id,name,city,price,sum(price) from Room, Guest, Reserve Where Room.reserve_id = Reserve.reserve_id and Room.reserve_id = Guest.reserve_id and Room.city = 'Mumbai' and Guest.guest_id < 20 and Room.reserve_id > 2 Group by name,price Having price > 3
