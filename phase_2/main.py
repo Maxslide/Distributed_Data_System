@@ -1,6 +1,8 @@
 from platform import node
 import pprint
 from os import curdir
+from re import L
+from select import select
 import Pyro4
 from mysql.connector import cursor
 import sqlparse
@@ -32,6 +34,7 @@ class HomeDatabase():
     def execute_query(self, query):
         self.cursor.execute(query)
         # print(self.cursor)
+        self.home.commit()
         output_list = []
         for i in self.cursor:
             output_list.append(i)
@@ -908,6 +911,13 @@ def get_size(site_id,table):
     out = site_obj[site_id].execute_query_output(query)
     return int(out[0][0])
 
+def remove_temp():
+    query = "Select * From Execution_Table;"
+    out = obj.execute_query(query)
+    for i in out:
+        if(i[1] == 1):
+            obj.execute_query("DROP TABLE "+i[0].strip()+";")
+    return
 def dfs(n):
     opt = nodes[n]['Key']
     if opt == 'Table_Fragment':
@@ -1411,6 +1421,7 @@ def final_query():
         print(i)
     print("-------------------------------------------\n\n\n\n")
     queries.append(query)
+    remove_temp()
     return queries
 
 for i in final_query():
