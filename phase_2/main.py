@@ -1224,7 +1224,7 @@ def dfs(n):
                     site_obj[si].Send_Create_Table(key + "_SJOut",site_link[min_key])
                     exec_ins.append((key + "_SJOut",1, min_key))
 
-            obj.insert_to_table("Execute_Table",exec_ins)
+            obj.insert_to_table("Execution_Table",exec_ins)
 
             if condi_flag == 1:
                 query = 'Create Table ' + nodes[n]['Value'] + ' AS (Select * From '
