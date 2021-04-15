@@ -908,6 +908,8 @@ def get_site_temp(table):
 
 def get_size(site_id,table):
     query = "Select COUNT(*) From "+table+";"
+    print(query)
+    print(site_id)
     out = site_obj[site_id].execute_query_output(query)
     return int(out[0][0])
 
