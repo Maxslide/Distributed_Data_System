@@ -986,7 +986,7 @@ def dfs(n):
                     site_obj[si].Send_Create_Table(chil,site_link[min_key])
                     ins = []
                     ins.append((chil,1,min_key))
-                    obj.insert_to_table('Execute_Table', ins)
+                    obj.insert_to_table('Execution_Table', ins)
             # Query to execute on min_key
             query_site = min_key
             # End sending table
@@ -1036,7 +1036,7 @@ def dfs(n):
                     site_obj[si].Send_Create_Table(chil,site_link[min_key])
                     ins = []
                     ins.append((chil,1,min_key))
-                    obj.insert_to_table('Execute_Table', ins)
+                    obj.insert_to_table('Execution_Table', ins)
             # Query to execute on min_key
             query_site = min_key
             # End sending table
@@ -1098,7 +1098,7 @@ def dfs(n):
                 site_obj[si].Send_Create_Table(chil,site_link[min_key])
                 ins = []
                 ins.append((chil,1,min_key))
-                obj.insert_to_table('Execute_Table', ins)
+                obj.insert_to_table('Execution_Table', ins)
         # Query to execute on min_key
         query_site = min_key
         # End sending table
