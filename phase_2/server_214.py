@@ -57,7 +57,7 @@ class HomeDatabase():
                     # print(str(i[j]))
                     col += " " + str(i[j]).strip('b').strip("'")
                     break
-                col += i[j]
+                col += i[j].strip('"')
             columns.append(col)
         print(columns)
         casete.Create_temp_table(Table_Name, columns)
