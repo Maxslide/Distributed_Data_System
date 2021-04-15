@@ -126,9 +126,9 @@ site_obj = {
     3 : obj_1.site_213
 }
 site_link = {
-    1 : link1,
+    1 : link3,
     2 : link2,
-    3 : link3
+    3 : link1
 }
 
 # obj_1.site_214.Send_Create_Table("TestingTable",obj_1.site_213_link)
@@ -985,7 +985,7 @@ def dfs(n):
                     si = dict_child[chil][0]
                     site_obj[si].Send_Create_Table(chil,site_link[min_key])
                     ins = []
-                    ins.append(chil,1,min_key)
+                    ins.append((chil,1,min_key))
                     obj.insert_to_table('Execute_Table', ins)
             # Query to execute on min_key
             query_site = min_key
@@ -1035,7 +1035,7 @@ def dfs(n):
                     si = dict_child[chil][0]
                     site_obj[si].Send_Create_Table(chil,site_link[min_key])
                     ins = []
-                    ins.append(chil,1,min_key)
+                    ins.append((chil,1,min_key))
                     obj.insert_to_table('Execute_Table', ins)
             # Query to execute on min_key
             query_site = min_key
@@ -1097,7 +1097,7 @@ def dfs(n):
                 print("UNION", chil, min_key) 
                 site_obj[si].Send_Create_Table(chil,site_link[min_key])
                 ins = []
-                ins.append(chil,1,min_key)
+                ins.append((chil,1,min_key))
                 obj.insert_to_table('Execute_Table', ins)
         # Query to execute on min_key
         query_site = min_key
