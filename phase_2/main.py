@@ -1250,6 +1250,7 @@ def dfs(n):
             query_site = min_key
             temp_tables.append(nodes[n]['Value'])
             print("Here in dfs query",query)
+            site_obj[query_site].execute_query(query)
             queries.append(query)
 
         # End sending table
