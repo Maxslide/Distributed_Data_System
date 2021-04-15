@@ -38,12 +38,17 @@ obj = HomeDatabase()
 
 temp_tables = []
 queries = []
-num = 
+num = last_node_number
+
+def Key_col(table):
+    query = "Select Frag_Condition from Frag_Table where Frag_Name = '" + table + "';"
+    out = obj.execute(query)
+
 
 def Frag_Type(table):
     query = "Select Frag_Type from Tables where Table_Name = '" + table + "';"
     out = obj.execute(query)
-    if(out[0]=="DHF" or out[0]=="HF"):
+    if(out[0].strip()=="DHF" or out[0].strip()=="HF"):
         return True
     else:
         return False
@@ -66,6 +71,7 @@ def dfs(n):
     
     elif opt == 'Union_Frag':
         child = []
+        vis[n]=1
         for i in range(num+1):
             if vis[i] == 0 and adj[n][i] == 1:
                 child.append(dfs(i))
@@ -107,16 +113,31 @@ def dfs(n):
             query += ');'
         
         else:
-            query = 'Create Table ' + nodes[n]['Value'] + ' AS ('
-            select = 'Select * From '
+            query = 'Create Table ' + nodes[n]['Value'] + ' AS (Select * From '
+            inner_join = ' Inner Join '
+            on = ' ON '
+            equal = ' = '
+            key_col = Key_col(child[0]['Value'])
+
+            for i in range(1,len(child)):
+                query += '('
+            
+            query += child[0]['Value'] + inner_join + child[1]['Value'] + on 
+            query += child[0]['Value'] + '.' + key_col + equal + child[1]['Value'] + '.' +key_col
+
+            for i in range(2,len(child)):
+                query += ')' + inner_join + child[i]['Value'] + on
+                query += child[0]['Value'] + '.' + key_col + equal + child[i]['Value'] + '.' +key_col
+            
+            query += ');'
         
         temp_tables.append(nodes[n]['Value'])
         queries.append(query)
-        vis[n]=1
         return nodes[n]
         
     elif opt == 'Union':
         child = []
+        vis[n]=1
         for i in range(num+1):
             if vis[i] == 0 and adj[n][i] == 1:
                 child.append(dfs(i))
@@ -141,11 +162,11 @@ def dfs(n):
         
         temp_tables.append(nodes[n]['Value'])
         queries.append(query)
-        vis[n]=1
         return nodes[n]
     
     elif opt == 'Join':
         child = []
+        vis[n] = 1
         for i in range(num+1):
             if vis[i] == 0 and adj[n][i] == 1:
                 child.append(dfs(i))
@@ -170,13 +191,57 @@ def dfs(n):
         query += ');'
         temp_tables.append(nodes[n]['Value'])
         queries.append(query)
-        vis[n] = 1
         return nodes[n]
+
+
+def final_query():
+    i = num
+    query = ''
+    query1 = ''
+    query2 = ''
+    query3 = ''
+    while i > 0 and nodes[i]['Key'] != 'Select':
+        opt = nodes[i]['Key']
+        vis[i] = 1
+        if  opt == 'Project':
+            query = 'Select '
+            col = nodes[i]['Condition']
+            for j in range(len(col)):
+                query += col[j]
+                query += ','
+            query -= ','
+            query += ' from '
+        
+        elif opt == 'GROUP BY':
+            query2 = ' ' + opt + ' '
+            col = nodes[i]['Condition']
+            for j in range(len(col)):
+                query2 += col[j]
+                query2 += ','
+            query2 -= ','
+        
+        elif opt == 'HAVING':
+            query3 = ' ' + opt + ' '
+            cond = nodes[i]['Condition']
+            for j in range(len(cond)-1):
+                query3 += cond[j]
+                query3 += ' and '
+            query3 += cond[len(cond)-1]
+        i -= 1
+
     
-    else:
-        for i in range(num+1):
-            if vis[i] == 0 and adj[n][i] == 1:
-                child = dfs(i)
-                break
-        for i in range(n,num+1):
-            
+    if nodes[i]['Key'] == ' Select ':
+        vis[i] = 1
+        temp = dfs(i)
+        query1 = temp['Value']
+        cond = nodes[i]['Condition']
+        if len(cond) > 0:
+            query1 += ' where '
+            for j in range(len(cond)-1):
+                query1 += cond[j]
+                query1 += ' and '
+            query1 += cond[len(cond)-1]
+    
+    query += query1 + query2 + query3 + ';'
+    queries.append(query)
+    return query
