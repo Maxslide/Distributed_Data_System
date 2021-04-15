@@ -1349,6 +1349,7 @@ def dfs(n):
             query_site = min_key
             queries.append([query,query_site])
             print("Here in dfs query",query)
+            obj.insert_to_table("Execution_Table",[(nodes[n]['Value'],1,query_site)])
             site_obj[query_site].execute_query(query)
 
         else:
@@ -1408,6 +1409,7 @@ def final_query():
         vis[i] = 1
         temp = dfs(i-1)
         query1 = temp['Value']
+        print("Final",query1)
         site_i = get_site_temp(query1)
         if(site_i[0] == 1):
             pass
@@ -1430,8 +1432,8 @@ def final_query():
     queries.append(query)
     return queries
 
-temp = final_query()
 remove_temp()
+temp = final_query()
 
 # print(queries
 
