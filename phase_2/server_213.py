@@ -34,7 +34,7 @@ class HomeDatabase():
         insert = "INSERT INTO " + table_name + " VALUES "
         for i in values[:-1]:
             if(len(i)) == 1:
-                insert += '('+str(i[0])+')'
+                insert += '('+str(i[0])+')' + ", "
             else:
                 insert += str(i) + ", "
         if(len(values[-1]) == 1):
