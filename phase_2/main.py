@@ -1094,6 +1094,7 @@ def dfs(n):
         for chil in dict_child:
             if min_key not in dict_child[chil]:
                 si = dict_child[chil][0]
+                print("UNION", chil, min_key) 
                 site_obj[si].Send_Create_Table(chil,site_link[min_key])
                 ins = []
                 ins.append(chil,1,min_key)
