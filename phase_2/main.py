@@ -861,7 +861,7 @@ def remove_temp():
     print("FINISHED")
     return
 
-remove_temp()
+# remove_temp()
     
 obj.Create_Exectution_Table()
 def Key_col(table):
