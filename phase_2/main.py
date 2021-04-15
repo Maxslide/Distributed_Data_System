@@ -1,8 +1,11 @@
-from typing import NoReturn
+import pprint
+from os import curdir
+import Pyro4
+from mysql.connector import cursor
 import sqlparse
 import mysql.connector
 from mysql.connector.constants import ServerFlag
-import pprint
+import base64
 
 
 class HomeDatabase():
@@ -33,6 +36,101 @@ class HomeDatabase():
             output_list.append(i)
         return output_list
 
+    def execute_query_final(self,query):
+        self.cursor.execute(query)
+        output_list = []
+        temp = []
+        for i in self.cursor.description:
+            temp.append(i[0])
+        output_list.append(temp)
+        for i in self.cursor:
+            output_list.append(i)
+        return output_list
+
+
+    def Create_Exectution_Table(self):
+        query = "DROP TABLE IF EXISTS Execution_Table;"
+        self.cursor.execute(query)
+        query = "CREATE TABLE Execution_Table ( Table_name varchar(200), Temp int, Site_id int );"
+        self.cursor.execute(query)
+        query = "CREATE TABLE Join_Selectivity ( Table_name varchar(200), Column_Name varchar(200),  Selectivity_Factor float , Cardinality int );"
+        self.cursor.execute(query)
+        self.home.commit()
+        return
+    
+    def insert_to_table(self, table_name, values):
+
+        print("In insert to table 213")
+        insert = "INSERT INTO " + table_name + " VALUES "
+        for i in values[:-1]:
+            insert += str(i) + ", "
+        insert += str(values[-1]) + " ;"
+        print(insert)
+        self.cursor.execute(insert)
+        self.home.commit()
+
+
+@Pyro4.expose
+class Client():
+
+    def __init__(self, link1, link2,link3):
+        self.site_213_link = link1
+        self.site_214_link = link2
+        self.site_215_link = link3
+
+        self.site_213 = Pyro4.Proxy(link1)
+        self.site_214 = Pyro4.Proxy(link2)
+        self.site_215 = Pyro4.Proxy(link3)
+        self.home = mysql.connector.connect(
+            user="Maxslide", password="iiit123", host="localhost", database="QuarantinedAgain")
+        self.cursor = self.home.cursor()
+
+    def execute_site_214(self,query):
+        self.site_214.execute_query(query)
+
+    def execute_site_213(self,query):
+        self.site_213.execute_query(query)
+    
+    def execute_site_213(self,query):
+        self.site_213.execute_query(query)
+
+    def Two_Phase_Commit(self,query):
+        # We need to send query to each site to update based on allocation schema
+        Table_Name = "Table_Name"
+        q = "select Table_Name, Frag_Name, Site_Id from Tables as T, Frag_Table as F, Allocation as A Where T.Table_Id = F.Table_Id and F.Frag_Id = A.Frag_Id  and Table_Name = " +Table_Name+";"
+        self.cursor.execute(q)
+        print('begin_commit')
+        for i in self.cursor:
+            #table_name = i[0]
+            #Frag_Name = i[1]
+            #Site_Id = i[2]
+
+            pass
+        return
+
+        
+
+link1 = "PYRO:Graph@10.3.5.213:9090"
+link2 = "PYRO:Graph@10.3.5.214:9090"
+link3 = "PYRO:Graph@10.3.5.215:9090"
+obj_1 = Client(link1,link2,link3)
+print(obj_1.site_213.check_connection())
+print(obj_1.site_214.check_connection())
+print(obj_1.site_215.check_connection())
+
+site_obj = {
+    1 : obj_1.site_215,
+    2 : obj_1.site_214,
+    3 : obj_1.site_213
+}
+site_link = {
+    1 : link1,
+    2 : link2,
+    3 : link3
+}
+
+# obj_1.site_214.Send_Create_Table("TestingTable",obj_1.site_213_link)
+# obj_1.site_214.Send_Create_Table("TestingTable",obj_1.site_215_link)
 
 obj = HomeDatabase()
 # obj.execute_query('Select * From Frag_Table')
@@ -91,7 +189,7 @@ def get_table_names(token_list):
                 })
             break
 
-
+Columns_Used = []
 def check_join(token):
     if ('=' in token and '.' in token):
         conditions = token.strip().split('=')
@@ -103,6 +201,7 @@ def check_join(token):
                 table = hash_table[check[0].strip()]
                 table = check[0].strip()
                 column = check[1].strip()
+                Columns_Used.append(column)
                 join.append([table, column])
             except:
                 pass
@@ -461,6 +560,9 @@ def Assign_frag():
                     for col in project_columns:
                         if col in columns_vf:
                             flag = 0
+                    for col in Columns_Used:
+                        if col in columns_vf:
+                            flag = 0
                     if flag == 0:
                         hash_frag[i['Value']].append(len(localised_tree_nodes))
                         newcon = []
@@ -733,6 +835,487 @@ for i in range(len(localised_tree_nodes)):
 
 print('Edge List -> ')
 print(localised_edges)
+
+# Select reserve_id,name,city,price from Room, Guest, Reserve Where Room.reserve_id = Reserve.reserve_id and Room.reserve_id = Guest.reserve_id and Room.city = 'Mumbai' and Guest.guest_id < 20 and Room.reserve_id > 2 Group by name,price Having price > 3
+
+
+temp_tables = []
+queries = []
+num = len(localised_tree_nodes) - 1
+nodes = localised_tree_nodes
+
+    
+obj.Create_Exectution_Table()
+def Key_col(table):
+    query = "Select Frag_Condition from Frag_Table where Frag_Name = '" + table + "';"
+    out = obj.execute_query(query)
+    papa = out[0][0].strip().split()[0].strip()
+    print(out)
+    print("Key col",papa )
+    return papa
+
+def Frag_Type(table):
+    query = "Select Frag_Type from Tables where Table_Name = '" + table + "';"
+    out = obj.execute_query(query)
+    # [('val',)]
+    print(out)
+    if(out[0][0].strip()=="DHF" or out[0][0].strip()=="HF"):
+        return True
+    else:
+        return False
+
+def create_graph(n,edges):
+    adj = []
+    for i in range(n):
+        temp = []
+        for j in range(n):
+            temp.append(0)
+        adj.append(temp)
+    vis = []
+    for i in range(n):
+        vis.append(0)
+    # print(adj)
+    for edge in edges:
+        # print(edge)
+        u = edge[0]
+        v = edge[1]
+        adj[u][v] = 1
+        adj[v][u] = 1
+    return adj,vis
+
+adj,vis = create_graph(num+1, localised_edges)
+def get_site(table):
+    query = "Select Site_Id from Allocation,Frag_Table where Allocation.Frag_Id = Frag_Table.Frag_Id AND Frag_Name = '" + table + "';"
+    out = obj.execute_query(query)
+    sites = []
+    for i in range(len(out)):
+        sites.append(out[i][0])
+    return sites
+
+def get_site_temp(table):
+    query = "Select Site_id from Execution_Table where Table = '" + table + "';"
+    out = obj.execute_query(query)
+    sites = []
+    for i in range(len(out)):
+        sites.append(int(out[i][0]))
+    return sites
+
+def get_size(site_id,table):
+    query = "Select COUNT(*) From "+table+";"
+    out = site_obj[site_id].execute_query_output(query)
+    return int(out[0][0])
+
+def dfs(n):
+    opt = nodes[n]['Key']
+    if opt == 'Table_Fragment':
+        vis[n] = 1
+        sites = get_site(nodes[n]['Value'])
+        ins = []
+        for i in sites:
+            tup = (nodes[n]['Value'],0,i)
+            ins.append(tup)
+        obj.insert_to_table('Execution_Table',ins)
+        return nodes[n]
+    
+    elif opt == 'Union_Frag':
+        child = []
+        vis[n]=1
+        for i in range(num+1):
+            if vis[i] == 0 and adj[n][i] == 1:
+                child.append(dfs(i))
+        
+        query_site = 0
+        if(Frag_Type(child[0]['Table_Name'])):
+            query = 'Create Table ' + nodes[n]['Value'] + ' AS ('
+            select = 'Select * From '
+            where = ' Where '
+            union = ' Union '
+            And = ' And '
+            
+            for i in range(len(child)-1):
+                query += select
+                frag_name = child[i]['Value']
+                frag_cond = child[i]['Condition']
+                query += frag_name 
+                cond = len(frag_cond)
+                if cond:
+                    query += where
+                    for j in range(cond-1):
+                        query += frag_cond[j] 
+                        query += And
+                    query += frag_cond[cond-1]
+                query += union
+                
+            i = len(child)-1
+            query += select
+            frag_name = child[i]['Value']
+            frag_cond = child[i]['Condition']
+            query += frag_name 
+            cond = len(frag_cond)
+            if cond:
+                query += where
+                for j in range(cond-1):
+                    query += frag_cond[j] 
+                    query += And
+                query += frag_cond[cond-1]
+
+            query += ');'
+            # Sending table
+            dict_child = {}
+            hash_site = {1 : 0, 2:0 , 3:0}
+            for i in child:
+                dict_child[i['Value']] = get_site_temp(i['Value'])
+
+            cost_site = {1: 0, 2:0,3:0}
+            for keys in hash_site:
+                for chil in dict_child:
+                    if keys not in dict_child[chil['Value']]:
+                        cost_site[keys] += get_size(dict_child[chil['Value']][0],chil['Value'])
+            min_key = 1
+            min_sum = cost_site[1]
+            for keys in cost_site:
+                if(cost_site[keys] > min_sum):
+                    min_sum = cost_site[keys]
+                    min_key = keys
+            
+            for chil in dict_child:
+                if min_key not in dict_child[chil['Value']]:
+                    si = dict_child[chil['Value']][0]
+                    site_obj[si].Send_Create_Table(chil['Value'],site_link[min_key])
+                    ins = []
+                    ins.append(chil['Value'],1,min_key)
+                    obj.insert_to_table('Execute_Table', ins)
+            # Query to execute on min_key
+            query_site = min_key
+            # End sending table
+            
+        else:
+            query = 'Create Table ' + nodes[n]['Value'] + ' AS (Select * From '
+            inner_join = ' Inner Join '
+            on = ' ON '
+            equal = ' = '
+            key_col = Key_col(child[0]['Value'])
+            if(len(child) >= 2):
+
+                for i in range(1,len(child)):
+                    query += '('
+                
+                query += child[0]['Value'] + inner_join + child[1]['Value'] + on 
+                query += child[0]['Value'] + '.' + key_col + equal + child[1]['Value'] + '.' +key_col
+
+                for i in range(2,len(child)):
+                    query += ')' + inner_join + child[i]['Value'] + on
+                    query += child[0]['Value'] + '.' + key_col + equal + child[i]['Value'] + '.' +key_col
+                query += ')'
+            else:
+                query += child[0]['Value']
+            query += ');'
+
+            dict_child = {}
+            hash_site = {1 : 0, 2:0 , 3:0}
+            for i in child:
+                dict_child[i['Value']] = get_site_temp(i['Value'])
+
+            cost_site = {1: 0, 2:0,3:0}
+            for keys in hash_site:
+                for chil in dict_child:
+                    if keys not in dict_child[chil['Value']]:
+                        cost_site[keys] += get_size(dict_child[chil['Value']][0],chil['Value'])
+            min_key = 1
+            min_sum = cost_site[1]
+            for keys in cost_site:
+                if(cost_site[keys] > min_sum):
+                    min_sum = cost_site[keys]
+                    min_key = keys
+            
+            for chil in dict_child:
+                if min_key not in dict_child[chil['Value']]:
+                    si = dict_child[chil['Value']][0]
+                    site_obj[si].Send_Create_Table(chil['Value'],site_link[min_key])
+                    ins = []
+                    ins.append(chil['Value'],1,min_key)
+                    obj.insert_to_table('Execute_Table', ins)
+            # Query to execute on min_key
+            query_site = min_key
+            # End sending table
+
+        temp_tables.append(nodes[n]['Value'])
+        print("Here in dfs query",query)
+        site_obj[query_site].execute_query(query)
+        queries.append([query,query_site])
+        return nodes[n]
+        
+    elif opt == 'Union':
+        child = []
+        vis[n]=1
+        for i in range(num+1):
+            if vis[i] == 0 and adj[n][i] == 1:
+                child.append(dfs(i))
+        
+        query = 'Create Table ' + nodes[n]['Value'] + ' AS ('
+        select = 'Select * From '
+        where = ' Where '
+        union = ' Union '
+        And = ' And '
+        
+        for i in range(len(child)-1):
+            query += select
+            frag_name = child[i]['Value']
+            query += frag_name 
+            query += union
+        
+        i = len(child)-1
+        frag_name = child[i]['Value']
+        query += frag_name
+        frag_cond = child[i]['Condition']
+        cond = len(frag_cond)
+        query += ');'
+
+        # sending table
+        dict_child = {}
+        hash_site = {1 : 0, 2:0 , 3:0}
+        for i in child:
+            dict_child[i['Value']] = get_site_temp(i['Value'])
+
+        cost_site = {1: 0, 2:0,3:0}
+        for keys in hash_site:
+            for chil in dict_child:
+                if keys not in dict_child[chil['Value']]:
+                    cost_site[keys] += get_size(dict_child[chil['Value']][0],chil['Value'])
+        min_key = 1
+        min_sum = cost_site[1]
+        for keys in cost_site:
+            if(cost_site[keys] > min_sum):
+                min_sum = cost_site[keys]
+                min_key = keys
+        
+        for chil in dict_child:
+            if min_key not in dict_child[chil['Value']]:
+                si = dict_child[chil['Value']][0]
+                site_obj[si].Send_Create_Table(chil['Value'],site_link[min_key])
+                ins = []
+                ins.append(chil['Value'],1,min_key)
+                obj.insert_to_table('Execute_Table', ins)
+        # Query to execute on min_key
+        query_site = min_key
+        # End sending table
+        
+        temp_tables.append(nodes[n]['Value'])
+        site_obj[query_site].execute_query(query)
+        queries.append([query,query_site])
+        return nodes[n]
+    
+    elif opt == 'Join':
+        child = []
+        vis[n] = 1
+        for i in range(num+1):
+            if vis[i] == 0 and adj[n][i] == 1:
+                child.append(dfs(i))
+        
+        condition = nodes[n]['Condition']
+        cond = (condition.strip()).split('=')
+        left = (cond[0].strip()).split('.')
+        right = (cond[1].strip()).split('.')
+        query = ''
+        condi_flag = 0
+        exec_ins = [] 
+        if left[1] == right[1]:
+            query = 'Create Table ' + nodes[n]['Value'] + ' AS (Select * From '
+            query += child[0]['Value'] + ' Inner Join ' + child[1]['Value'] + ' using('
+            query += right[1]
+            query += ')'
+            condi_flag = 1
+        else:
+            query = 'Create Table ' + nodes[n]['Value'] + ' AS ('
+            select = 'Select * From '
+            where = ' Where '
+            query += select + child[0]['Value'] + ',' + child[1]['Value']
+            query += where
+            query += nodes[n]['Condition']
+        query += ');'
+
+        # sending table
+        dict_child = {}
+        hash_site = {1 : 0, 2:0 , 3:0}
+        for i in child:
+            dict_child[i['Value']] = get_site_temp(i['Value'])
+
+        cost_site = {1: 0, 2:0,3:0}
+        for keys in hash_site:
+            for chil in dict_child:
+                if keys not in dict_child[chil['Value']]:
+                    cost_site[keys] += get_size(dict_child[chil['Value']][0],chil['Value'])
+        min_key = 0
+        min_sum = cost_site[1]
+        if(cost_site[1] == 2):
+            min_key = 1
+        elif(cost_site[2] == 2):
+            min_key = 2
+        elif(cost_site[3] == 2):
+            min_key = 3
+
+        if(min_key == 0):
+            semi_join_dict_child = {}
+            flag = 0
+            ins = []
+            for chil in dict_child:
+                si = dict_child[chil['Value']][0]
+                if flag == 0:
+                    que = "Select Count(DISTINCT "+left[1]+" ) From " +chil['Value']+";" 
+                    query_semi = "Create TABLE "+chil['Value'] +"_SJ"+" AS (Select Distinct "+left[i]+" FROM "+chil['Value']+" );"
+                    site_obj[si].execute_query(query_semi)
+                    exec_ins.append((chil['Value'] +"_SJ",1,si))
+                    flag = 1
+                    out = site_obj[si].execute_query_output(que)
+                    sizz =get_size(si,chil['Value'])                
+                    ins.append((chil['Value'],left[1],float(out[0][0]),sizz))
+                    semi_join_dict_child[chil['Value']] = [float(out[0][0]), sizz,si,left[1]]
+                else :
+                    que = "Select Count(DISTINCT "+right[1]+" ) From " +chil['Value']+";" 
+                    query_semi = "Create TABLE "+chil['Value'] +"_SJ"+" AS (Select Distinct "+right[i]+" FROM "+chil['Value']+" );"
+                    site_obj[si].execute_query(query_semi)
+                    exec_ins.append((chil['Value'] +"_SJ",1,si))
+                    out = site_obj[si].execute_query_output(que)  
+                    sizz = get_size(si,chil['Value'])   
+                    semi_join_dict_child[chil['Value']] = [float(out[0][0]), sizz,si,right[1]]
+                    ins.append((chil['Value'],left[1],float(out[0][0]),sizz))
+            obj.insert_to_table('Join_Selectivity',ins) 
+            for key1 in semi_join_dict_child:
+                for key2 in semi_join_dict_child:
+                    if(key1 != key2):
+                        siit = semi_join_dict_child[key1][2]
+                        siit2 = semi_join_dict_child[key2][2]
+                        cond1 = semi_join_dict_child[key1][3]
+                        cond2 = semi_join_dict_child[key2][3]
+                        site_obj[siit].Send_Create_Table(key1 + "_SJ", siit2)
+                        if(condi_flag == 1):
+                            query = 'Create Table ' + key2 +'_SJOut' + ' AS (Select * From '
+                            query += key2 + ' Inner Join ' + key1 +'_SJ'+  ' using('
+                            query += right[1]
+                            query += ')'
+                            site_obj[siit2].execute_query(query)
+                            exec_ins.append((key2 + "_SJOut",1,siit2))
+                        else :
+                            query = 'Create Table ' + key2 +'_SJOut' + ' AS (Select * From '
+                            query += key2 + " , " + key1 + '_SJ' + " Where "+key1 + "_SJ." + cond1 + " = " +key2 +"." +cond2 + ";"
+                            site_obj[siit2].execute_query(query)
+                            exec_ins.append((key2 + "_SJOut",1,siit2))
+
+            min_key = 0
+            min_sum = 0
+            for key in semi_join_dict_child:
+                min_key = semi_join_dict_child[key][2]
+                min_sum = get_size(min_key,key + "_SJOut")
+            
+            for key in semi_join_dict_child:
+                k = semi_join_dict_child[key][2]
+                s = get_size(min_key,key + "_SJOut")
+                if(s > min_sum):
+                    min_sum = s
+                    min_key = k
+            
+            for key in semi_join_dict_child:
+                if semi_join_dict_child[key][2] != min_key:
+                    si = semi_join_dict_child[key][2]
+                    site_obj[si].Send_Create_Table(key + "_SJOut",site_link[min_key])
+                    exec_ins.append((key + "_SJOut",1, min_key))
+
+            obj.insert_to_table("Execute_Table",exec_ins)
+
+            if condi_flag == 1:
+                query = 'Create Table ' + nodes[n]['Value'] + ' AS (Select * From '
+                query += key2 +"_SJOut"+ ' Inner Join ' + key1 +'_SJOut'+  ' using('
+                query += right[1]
+                query += ')'
+            else:
+                query = 'Create Table ' + nodes[n]['Value'] + ' AS (Select * From '
+                query += key2 + "_SJOut"+ " , " + key1 + '_SJOut' + " Where "+key1 + "_SJOut." + cond1 + " = " +key2 +"_SJOut." +cond2 + ";"
+            query_site = min_key
+            queries.append([query,query_site])
+            site_obj[query_site].execute_query(query)
+
+        else:
+            query_site = min_key
+            temp_tables.append(nodes[n]['Value'])
+            queries.append(query)
+
+        # End sending table
+
+
+        
+        return nodes[n]
+
+
+def final_query():
+    i = num
+    query = ''
+    query1 = ''
+    query2 = ''
+    query3 = ''
+    # print(vis, len(vis))
+    # print(adj)
+    while i > 0 and nodes[i]['Key'] != 'Select':
+        opt = nodes[i]['Key']
+        vis[i] = 1
+        if  opt == 'Project':
+            query = 'Select '
+            col = nodes[i]['Condition']
+            for j in range(len(col)):
+                query += col[j]
+                query += ','
+            query = query[:-1]
+            query += ' from '
+        
+        elif opt == 'GROUP BY':
+            query2 = ' ' + opt + ' '
+            col = nodes[i]['Condition']
+            for j in range(len(col)):
+                query2 += col[j]
+                query2 += ','
+            query2 = query2[:-1]
+        
+        elif opt == 'HAVING':
+            query3 = ' ' + opt + ' '
+            cond = nodes[i]['Condition']
+            for j in range(len(cond)-1):
+                query3 += cond[j]
+                query3 += ' and '
+            query3 += cond[len(cond)-1]
+        i -= 1
+
+    
+    if nodes[i]['Key'] == 'Select':
+        vis[i] = 1
+        temp = dfs(i-1)
+        query1 = temp['Value']
+        site_i = get_site_temp(query1)
+        if(site_i == 1):
+            pass
+        else:
+            site_obj[site_i].Send_Create_Table(query1,site_link[1])
+        cond = nodes[i]['Condition']
+        if len(cond) > 0:
+            query1 += ' where '
+            for j in range(len(cond)-1):
+                query1 += cond[j]
+                query1 += ' and '
+            query1 += cond[len(cond)-1]
+    
+    query += query1 + query2 + query3 + ';'
+    out = obj.execute_query_final(query)
+    print("EXECUTED QUERY")
+    for i in out:
+        print(i)
+    print("-------------------------------------------\n\n\n\n")
+    queries.append(query)
+    return queries
+
+for i in final_query():
+    print(i)
+    print()
+
+print(temp_tables)
+# print(queries
 
 
 # Select reserve_id,name,city,price,sum(price) from Room, Guest, Reserve Where Room.reserve_id = Reserve.reserve_id and Room.reserve_id = Guest.reserve_id and Room.city = 'Mumbai' and Guest.guest_id < 20 and Room.reserve_id > 2 Group by name,price Having price > 3

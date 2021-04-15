@@ -26,10 +26,14 @@ class HomeDatabase():
                     self.cursor.execute(i)
                 return "vote-commit"
         elif(message == "COMMIT"):
-            self.cursor.commit()
+            self.home.commit()
+            print("COMMITED")
             return ("Site 215 commited successfully")
         else:
-            self.cursor.rollback()
+            self.home.rollback()
+            print("ABORTED")
+            return ("Site 215 Aborted")
+
 
     def check_connection(self):
         print("215 connection")

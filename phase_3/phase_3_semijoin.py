@@ -36,3 +36,4 @@ class HomeDatabase():
 
 obj = HomeDatabase()
 
+# Join temp table -> Table_Name, Frag_Name

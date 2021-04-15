@@ -51,13 +51,13 @@ class Client():
 link1 = "PYRO:Graph@10.3.5.213:9090"
 link2 = "PYRO:Graph@10.3.5.214:9090"
 link3 = "PYRO:Graph@10.3.5.215:9090"
-obj = Client(link1,link2,link3)
-print(obj.site_213.check_connection())
-print(obj.site_214.check_connection())
-print(obj.site_215.check_connection())
+obj_1 = Client(link1,link2,link3)
+print(obj_1.site_213.check_connection())
+print(obj_1.site_214.check_connection())
+print(obj_1.site_215.check_connection())
 
-obj.site_214.Send_Create_Table("TestingTable",obj.site_213_link)
-obj.site_214.Send_Create_Table("TestingTable",obj.site_215_link)
+obj_1.site_214.Send_Create_Table("TestingTable",obj_1.site_213_link)
+obj_1.site_214.Send_Create_Table("TestingTable",obj_1.site_215_link)
 
 # CREATE TABLE TestingTable(A int, B int);
 # Insert Into TestingTable Values (1,2);

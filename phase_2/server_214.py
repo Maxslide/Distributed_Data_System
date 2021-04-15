@@ -24,18 +24,21 @@ class HomeDatabase():
         creat_table += columns[-1] + " );"
         print(creat_table)
         self.cursor.execute(creat_table)
+        self.home.commit()
         # At this point we have a temporary table created
         return
 
     def insert_to_table(self, table_name, values):
 
-        print("In insert to table 213")
+        print("In insert to table 214")
         insert = "INSERT INTO " + table_name + " VALUES "
         for i in values[:-1]:
             insert += str(i) + ", "
         insert += str(values[-1]) + " ;"
         print(insert)
         self.cursor.execute(insert)
+        self.home.commit()
+
 
     def Send_Create_Table(self, Table_Name, link):
         casete = Pyro4.Proxy(link)
@@ -66,15 +69,40 @@ class HomeDatabase():
             casete.insert_to_table(Table_Name, values)
             check = 0
             values = []
+        self.home.commit()
         print("Done sending 214")
 
     def execute_query(self, query):
         self.cursor.execute(query)
+        self.home.commit()
         # print(self.cursor)
         # output_list = []
         # for i in self.cursor:
         #     output_list.append(i)
         # return output_list
+    
+    def execute_query_output(self,query):
+        self.cursor.execute(query)
+        # print(self.cursor)
+        output_list = []
+        for i in self.cursor:
+            output_list.append(i)
+        return output_list
+
+    def two_phase_message(self,message):
+        ready_state = 0 
+        if(message == "prepare"):
+            if ready_state == 0:
+                print("abort")
+                return "vote-abort"
+            else :
+                print("ready")
+                return "vote-commit"
+        if(message == "COMMIT"):
+            pass
+        if(message == "ABORT"):
+            pass
+        
 
     def check_connection(self):
         print("214 connection")
