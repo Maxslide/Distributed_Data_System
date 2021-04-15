@@ -86,6 +86,7 @@ class HomeDatabase():
         # for i in self.cursor:
         #     output_list.append(i)
         # return output_list
+        return
     
     def execute_query_output(self,query):
         self.cursor.execute(query)

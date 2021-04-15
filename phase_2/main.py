@@ -918,6 +918,8 @@ def remove_temp():
         if(i[1] == 1):
             print("DROP TABLE IF EXISTS "+i[0].strip()+";")
             site_obj[i[2]].execute_query("DROP TABLE IF EXISTS "+i[0].strip()+";")
+        else :
+            continue
     return
 def dfs(n):
     opt = nodes[n]['Key']
@@ -1422,12 +1424,10 @@ def final_query():
         print(i)
     print("-------------------------------------------\n\n\n\n")
     queries.append(query)
-    remove_temp()
+    a = remove_temp()
     return queries
 
-for i in final_query():
-    print(i)
-    print()
+temp = final_query()
 
 print(temp_tables)
 # print(queries
