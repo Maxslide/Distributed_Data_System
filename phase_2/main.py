@@ -1197,6 +1197,7 @@ def dfs(n):
                             query += '));'
                             print("Query : ",query)
                             site_obj[siit2].execute_query(query)
+                            print('exec : ' ,)
                             exec_ins.append((key2 + "_SJOut",1,siit2))
                         else :
                             query = 'Create Table ' + key2 +'_SJOut' + ' AS (Select * From '
@@ -1225,7 +1226,13 @@ def dfs(n):
                     exec_ins.append((key + "_SJOut",1, min_key))
 
             obj.insert_to_table("Execution_Table",exec_ins)
-
+            key1 = ''
+            key2 = ''
+            for key in semi_join_dict_child:
+                if len(key1) == 0:
+                    key1 = key
+                else:
+                    key2 = key
             if condi_flag == 1:
                 query = 'Create Table ' + nodes[n]['Value'] + ' AS (Select * From '
                 query += key2 +"_SJOut"+ ' Inner Join ' + key1 +'_SJOut'+  ' using('
