@@ -1189,7 +1189,7 @@ def dfs(n):
                         siit2 = semi_join_dict_child[key2][2]
                         cond1 = semi_join_dict_child[key1][3]
                         cond2 = semi_join_dict_child[key2][3]
-                        site_obj[siit].Send_Create_Table(key1 + "_SJ", siit2)
+                        site_obj[siit].Send_Create_Table(key1 + "_SJ", site_link[siit2])
                         if(condi_flag == 1):
                             query = 'Create Table ' + key2 +'_SJOut' + ' AS (Select * From '
                             query += key2 + ' Inner Join ' + key1 +'_SJ'+  ' using('
