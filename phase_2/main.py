@@ -34,7 +34,7 @@ class HomeDatabase():
     def execute_query(self, query):
         self.cursor.execute(query)
         # print(self.cursor)
-        self.home.commit()
+        # self.home.commit()
         output_list = []
         for i in self.cursor:
             output_list.append(i)
