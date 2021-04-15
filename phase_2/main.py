@@ -1194,13 +1194,13 @@ def dfs(n):
                             query = 'Create Table ' + key2 +'_SJOut' + ' AS (Select * From '
                             query += key2 + ' Inner Join ' + key1 +'_SJ'+  ' using('
                             query += right[1]
-                            query += ')'
+                            query += '));'
                             print("Query : ",query)
                             site_obj[siit2].execute_query(query)
                             exec_ins.append((key2 + "_SJOut",1,siit2))
                         else :
                             query = 'Create Table ' + key2 +'_SJOut' + ' AS (Select * From '
-                            query += key2 + " , " + key1 + '_SJ' + " Where "+key1 + "_SJ." + cond1 + " = " +key2 +"." +cond2 + ";"
+                            query += key2 + " , " + key1 + '_SJ' + " Where "+key1 + "_SJ." + cond1 + " = " +key2 +"." +cond2 + ");"
                             print("Query : ",query)
                             site_obj[siit2].execute_query(query)
                             exec_ins.append((key2 + "_SJOut",1,siit2))
@@ -1230,10 +1230,10 @@ def dfs(n):
                 query = 'Create Table ' + nodes[n]['Value'] + ' AS (Select * From '
                 query += key2 +"_SJOut"+ ' Inner Join ' + key1 +'_SJOut'+  ' using('
                 query += right[1]
-                query += ')'
+                query += '));'
             else:
                 query = 'Create Table ' + nodes[n]['Value'] + ' AS (Select * From '
-                query += key2 + "_SJOut"+ " , " + key1 + '_SJOut' + " Where "+key1 + "_SJOut." + cond1 + " = " +key2 +"_SJOut." +cond2 + ";"
+                query += key2 + "_SJOut"+ " , " + key1 + '_SJOut' + " Where "+key1 + "_SJOut." + cond1 + " = " +key2 +"_SJOut." +cond2 + ");"
             query_site = min_key
             queries.append([query,query_site])
             print("Here in dfs query",query)
