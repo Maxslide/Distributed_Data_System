@@ -1164,7 +1164,7 @@ def dfs(n):
                 si = dict_child[chil][0]
                 if flag == 0:
                     que = "Select Count(DISTINCT "+left[1]+" ) From " +chil+";" 
-                    query_semi = "Create TABLE "+chil +"_SJ"+" AS (Select Distinct "+left[i]+" FROM "+chil+" );"
+                    query_semi = "Create TABLE "+chil +"_SJ"+" AS (Select Distinct "+left[1]+" FROM "+chil+" );"
                     site_obj[si].execute_query(query_semi)
                     exec_ins.append((chil +"_SJ",1,si))
                     flag = 1
@@ -1174,7 +1174,7 @@ def dfs(n):
                     semi_join_dict_child[chil] = [float(out[0][0]), sizz,si,left[1]]
                 else :
                     que = "Select Count(DISTINCT "+right[1]+" ) From " +chil+";" 
-                    query_semi = "Create TABLE "+chil +"_SJ"+" AS (Select Distinct "+right[i]+" FROM "+chil+" );"
+                    query_semi = "Create TABLE "+chil +"_SJ"+" AS (Select Distinct "+right[1]+" FROM "+chil+" );"
                     site_obj[si].execute_query(query_semi)
                     exec_ins.append((chil +"_SJ",1,si))
                     out = site_obj[si].execute_query_output(que)  
