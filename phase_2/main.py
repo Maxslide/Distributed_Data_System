@@ -1067,6 +1067,7 @@ def dfs(n):
             query += union
         
         i = len(child)-1
+        query += select
         frag_name = child[i]['Value']
         query += frag_name
         frag_cond = child[i]['Condition']
