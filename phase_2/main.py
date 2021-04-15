@@ -916,7 +916,7 @@ def remove_temp():
     out = obj.execute_query(query)
     for i in out:
         if(i[1] == 1):
-            obj.execute_query("DROP TABLE "+i[0].strip()+";")
+            site_obj[i[2]].execute_query("DROP TABLE "+i[0].strip()+";")
     return
 def dfs(n):
     opt = nodes[n]['Key']
