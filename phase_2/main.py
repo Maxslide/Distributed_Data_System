@@ -819,10 +819,10 @@ if(join_flag == 1):
     # print(tree_nodes)
     for i in range(len(localised_tree_nodes)):
         localised_edges.append([i,len(localised_tree_nodes)])
-    
+    val = localised_tree_nodes[len(localised_tree_nodes) - 1]['Value']
     localised_tree_nodes.append({
         'Key': 'Union_Frag',
-        'Value': "",
+        'Value': "Union_Frag_" + val,
         'Condition': []
     })
 
