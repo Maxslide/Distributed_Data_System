@@ -33,8 +33,14 @@ class HomeDatabase():
         print("In insert to table 215")
         insert = "INSERT INTO " + table_name + " VALUES "
         for i in values[:-1]:
-            insert += str(i) + ", "
-        insert += str(values[-1]) + " ;"
+            if(len(i)) == 1:
+                insert += '('+str(i[0])+')'
+            else:
+                insert += str(i) + ", "
+        if(len(values[-1]) == 1):
+            insert += '(' + str(values[-1][0]) + ');'
+        else:
+            insert += str(values[-1]) + " ;"
         print(insert)
         self.cursor.execute(insert)
         self.home.commit()

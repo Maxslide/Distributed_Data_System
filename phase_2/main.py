@@ -1101,7 +1101,7 @@ def dfs(n):
         # Query to execute on min_key
         query_site = min_key
         # End sending table
-        
+        print("Here in dfs query",query)
         temp_tables.append(nodes[n]['Value'])
         site_obj[query_site].execute_query(query)
         queries.append([query,query_site])
@@ -1234,11 +1234,13 @@ def dfs(n):
                 query += key2 + "_SJOut"+ " , " + key1 + '_SJOut' + " Where "+key1 + "_SJOut." + cond1 + " = " +key2 +"_SJOut." +cond2 + ";"
             query_site = min_key
             queries.append([query,query_site])
+            print("Here in dfs query",query)
             site_obj[query_site].execute_query(query)
 
         else:
             query_site = min_key
             temp_tables.append(nodes[n]['Value'])
+            print("Here in dfs query",query)
             queries.append(query)
 
         # End sending table
