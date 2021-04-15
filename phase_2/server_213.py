@@ -55,7 +55,7 @@ class HomeDatabase():
             for j in range(len(i)):
                 if(j == 1):
                     # print(str(i[j]))
-                    col += " " + str(i[j]).strip('b').strip("'")
+                    col += " " + str(i[j]).strip('b').strip("'").strip('"')
                     break
                 col += i[j].strip('"')
             columns.append(col)
