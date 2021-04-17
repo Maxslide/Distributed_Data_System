@@ -9,6 +9,7 @@ import sqlparse
 import mysql.connector
 from mysql.connector.constants import ServerFlag
 import base64
+from prettytable import PrettyTable
 
 
 class HomeDatabase():
@@ -812,8 +813,11 @@ def Assign_frag():
                 })
     return
 
-
-Assign_frag()
+try:
+    Assign_frag()
+except:
+    print("Incorrect Query")
+    exit(0)
 flag = 0
 if(join_flag == 1):
     # print(tree_nodes)
@@ -1430,15 +1434,19 @@ def final_query():
     print(query)
     out = obj.execute_query_final(query)
     print("EXECUTED QUERY")
-    for i in out:
-        print(i)
-    print("-------------------------------------------\n\n\n\n")
+    myTable = PrettyTable(list(out[0]))
+    for i in out[1:]:
+        myTable.add_row(list(i))
+    print(myTable)
+    # print("-------------------------------------------\n\n\n\n")
     queries.append(query)
     return queries
 
 
-
-temp = final_query()
+try:
+    temp = final_query()
+except :
+    print("Execution Error")
 remove_temp()
 # print(queries
 
