@@ -15,7 +15,8 @@ class HomeDatabase():
         self.cursor = self.home.cursor()
 
     def two_phase_message(self,message,query):
-        ready_state = 0 
+        ready_state = 1
+        print(message,query)
         if(message == "prepare"):
             if ready_state == 0:
                 print("abort")

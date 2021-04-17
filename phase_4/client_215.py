@@ -34,8 +34,8 @@ class Client():
 
     def Two_Phase_Commit(self,query):
         # We need to send query to each site to update based on allocation schema
-        Table_Name = "Table_Name"
-        query = "UPDATE Table Where A = b"
+        # Table_Name = "Table_Name"
+        # query = "UPDATE Table Where A = b"
         parsed_query = sqlparse.parse(sqlparse.format(query, keyword_case='upper'))[0].tokens
         token_list = []
         for i in parsed_query:
@@ -101,6 +101,8 @@ print(obj.site_215.check_connection())
 
 obj.site_214.Send_Create_Table("TestingTable",obj.site_213_link)
 obj.site_214.Send_Create_Table("TestingTable",obj.site_215_link)
+print("Enter query : ")
+query = input()
 
 # CREATE TABLE TestingTable(A int, B int);
 # Insert Into TestingTable Values (1,2);
