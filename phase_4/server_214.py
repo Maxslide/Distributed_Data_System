@@ -20,31 +20,31 @@ class HomeDatabase():
         ready_state = 1
         print(message,query)
         if(message == "prepare"):
-            logging.info("Recieved From Clinet" + message + " ")
+            logging.info("Recieved From Clinet " + message + " ")
             if ready_state == 0:
                 print("abort")
-                logging.log("sending vote-abort")
+                logging.info("sending vote-abort")
                 return "vote-abort"
             else :
                 print("ready")
                 try :
                     for i in query:
                         self.cursor.execute(i)
-                    logging.log("vote-commit")
+                    logging.info("vote-commit")
                     return "vote-commit"
                 except :
-                    logging.log("vote-abort")
+                    logging.info("vote-abort")
                     return "vote-abbort"
         elif(message == "COMMIT"):
-            logging.log("message COMMIT recieved From Client")
+            logging.info("message COMMIT recieved From Client")
             self.home.commit()
-            logging.log("Commited changes")
+            logging.info("Commited changes")
             print("COMMITED")
             return ("Site 214 commited successfully")
         else:
-            logging.log("message to ABORT")
+            logging.info("message to ABORT")
             self.home.rollback()
-            logging.log("ABORTING Changes")
+            logging.info("ABORTING Changes")
             print("ABORTED")
             return ("Site 214 Aborted")
 

@@ -102,7 +102,8 @@ class Client():
             for Site_Id in site_data:
                 try:
                     site_dict[Site_Id].two_phase_message("ABORT",site_data[Site_Id])
-                except:
+                except Exception as e:
+                    print(e)
                     logging.info("Site is shut : " + str(Site_Id))
                     print("Site is shut : ", Site_Id)
             
