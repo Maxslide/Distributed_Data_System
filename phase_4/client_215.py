@@ -5,6 +5,7 @@ import sqlparse
 import mysql.connector
 from mysql.connector.constants import ServerFlag
 import base64
+import logging
 
 
 
@@ -22,6 +23,8 @@ class Client():
         self.home = mysql.connector.connect(
             user="Maxslide", password="iiit123", host="localhost", database="QuarantinedAgain")
         self.cursor = self.home.cursor()
+        logging.basicConfig(level=logging.INFO, filename='Client.log')
+        
 
     def execute_site_214(self,query):
         self.site_214.execute_query(query)
@@ -57,6 +60,7 @@ class Client():
         q = "select Table_Name, Frag_Name, Site_Id from Tables as T, Frag_Table as F, Allocation as A Where T.Table_Id = F.Table_Id and F.Frag_Id = A.Frag_Id  and Table_Name = '" +Table_Name+"';"
         self.cursor.execute(q)
         print('begin_commit')
+        logging.info("begin-commit")
         replies = []
         site_data = {1:[],2:[],3:[]}
         site_dict = {1 : self.site_215, 2: self.site_214, 3 : self.site_213}
@@ -83,14 +87,24 @@ class Client():
             # replies.append(site_dict[Site_Id].two_phase_message("prepare", final_query))
         for Site_Id in site_data:
             print(site_data[Site_Id])
-            replies.append(site_dict[Site_Id].two_phase_message("prepare", site_data[Site_Id]))
+            logging.info("Sending prepare message")
+            try:
+                replies.append(site_dict[Site_Id].two_phase_message("prepare", site_data[Site_Id]))
+            except:
+                replies.append("vote-abort")
 
         if ("vote-abort" not in replies):
             for Site_Id in site_data:
                 site_dict[Site_Id].two_phase_message("COMMIT",site_data[Site_Id])
+            logging.info("Sent Message to Commit")
         else :
+            logging.info("Recieved vote-abort from some site, hence Aborting")
             for Site_Id in site_data:
-                site_dict[Site_Id].two_phase_message("ABORT",site_data[Site_Id])
+                try:
+                    site_dict[Site_Id].two_phase_message("ABORT",site_data[Site_Id])
+                except:
+                    logging.info("Site is shut : " + str(Site_Id))
+                    print("Site is shut : ", Site_Id)
             
 
         return
