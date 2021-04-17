@@ -15,7 +15,7 @@ class HomeDatabase():
         self.cursor = self.home.cursor()
 
     def two_phase_message(self,message,query):
-        ready_state = 1 
+        ready_state = 1
         print(message,query)
         if(message == "prepare"):
             if ready_state == 0:
@@ -23,9 +23,12 @@ class HomeDatabase():
                 return "vote-abort"
             else :
                 print("ready")
-                for i in query:
-                    self.cursor.execute(i)
-                return "vote-commit"
+                try :
+                    for i in query:
+                        self.cursor.execute(i)
+                    return "vote-commit"
+                except :
+                    return "vote-abbort"
         elif(message == "COMMIT"):
             self.home.commit()
             print("COMMITED")

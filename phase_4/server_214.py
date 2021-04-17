@@ -23,9 +23,12 @@ class HomeDatabase():
                 return "vote-abort"
             else :
                 print("ready")
-                for i in query:
-                    self.cursor.execute(i)
-                return "vote-commit"
+                try :
+                    for i in query:
+                        self.cursor.execute(i)
+                    return "vote-commit"
+                except :
+                    return "vote-abbort"
         elif(message == "COMMIT"):
             self.home.commit()
             print("COMMITED")

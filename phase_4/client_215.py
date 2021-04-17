@@ -58,6 +58,8 @@ class Client():
         self.cursor.execute(q)
         print('begin_commit')
         replies = []
+        site_data = {1:[],2:[],3:[]}
+        site_dict = {1 : self.site_215, 2: self.site_214, 3 : self.site_213}
         for i in self.cursor:
             table_name = i[0]
             Frag_Name = i[1]
@@ -65,8 +67,6 @@ class Client():
             # temp = query.split()
             query_list = []
             flag = 0
-            site_dict = {1 : self.site_215, 2: self.site_214, 3 : self.site_213}
-            site_data = {1:[],2:[],3:[]}
             for i in token_list:
                 if flag == 0:
                     if(str(i) == "UPDATE"):
@@ -76,15 +76,21 @@ class Client():
                 else:
                     query_list.append(Frag_Name)
                     query_list.append(" ")
+                    flag = 0
             final_query = ''.join(query_list)
+            print(final_query)
             site_data[Site_Id].append(final_query)
             # replies.append(site_dict[Site_Id].two_phase_message("prepare", final_query))
         for Site_Id in site_data:
-            replies.append(site_dict[Site_Id].two_phase_message("prepare", site_dict[Site_Id]))
+            print(site_data[Site_Id])
+            replies.append(site_dict[Site_Id].two_phase_message("prepare", site_data[Site_Id]))
 
         if ("vote-abort" not in replies):
             for Site_Id in site_data:
-                site_dict[Site_Id].two_phase_message("COMMIT",[])
+                site_dict[Site_Id].two_phase_message("COMMIT",site_data[Site_Id])
+        else :
+            for Site_Id in site_data:
+                site_dict[Site_Id].two_phase_message("ABORT",site_data[Site_Id])
             
 
         return
@@ -99,11 +105,11 @@ print(obj.site_213.check_connection())
 print(obj.site_214.check_connection())
 print(obj.site_215.check_connection())
 
-obj.site_214.Send_Create_Table("TestingTable",obj.site_213_link)
-obj.site_214.Send_Create_Table("TestingTable",obj.site_215_link)
+# obj.site_214.Send_Create_Table("TestingTable",obj.site_213_link)
+# obj.site_214.Send_Create_Table("TestingTable",obj.site_215_link)
 print("Enter query : ")
 query = input()
-
+obj.Two_Phase_Commit(query)
 # CREATE TABLE TestingTable(A int, B int);
 # Insert Into TestingTable Values (1,2);
 # Insert Into TestingTable Values (2,3);
